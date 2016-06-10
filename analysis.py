@@ -11,7 +11,7 @@ b = .01                        # b = .05 SA, .005 WA
 stim_dur = 50.0
 
 
-py_sp = NeuroTools.signals.load_spikelist('py_1layer.dat')
+py_sp = NeuroTools.signals.load_spikelist('py.dat')
 print "Layer A Pyramidal Mean Rate (initial stimulation): %s" % str(py_sp.mean_rate(t_start=0,t_stop=stim_dur))
 print "Layer A Pyramidal Mean Rate: %s" % str(py_sp.mean_rate(t_start=stim_dur,t_stop=run_time))
 print "Layer A Pyramidal Mean CV: %s" % str(mean(py_sp.cv_isi(float_only=True)))
@@ -23,7 +23,7 @@ plot.title('b = %s' % str(b))
 
 
 
-inh_sp = NeuroTools.signals.load_spikelist('inh_1layer.dat')
+inh_sp = NeuroTools.signals.load_spikelist('inh.dat')
 print inh_sp.mean_rate(t_start=50, t_stop=run_time)
 print stim_dur
 print "Layer A Interneuron Mean Rate (initial stimulation): %s" % str(inh_sp.mean_rate(t_start=0,t_stop=stim_dur))
@@ -36,7 +36,7 @@ plot.title('N = %s' % str(N))
 
 
 
-plot.savefig('raster_1layer.pdf')
+plot.savefig('raster.pdf')
 
 
 stat = open("stat.txt", "w+")

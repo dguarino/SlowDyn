@@ -3,7 +3,7 @@
 
   Destexhe Lab 
   Written in pyNN by Lyle Muller 18 Mar 2010
-  Modified by Zahara Gironés 7 June 2016
+  Modified by Zahara Girones 7 June 2016
   
     This file implements a PyNN version of the model detailed in
   Destexhe, A. Self-sustained asynchronous irregular states and
@@ -135,8 +135,8 @@ print "Simulation Time: %s" % str(simCPUtime)
 ##os.chdir('Insert Data Directory Here')
 ##py.print_v('pyB_v.dat')
 ##inh.print_v('inhB_v.dat')
-py.printSpikes('py_1layer.dat')
-inh.printSpikes('inh_1layer.dat')
+py.printSpikes('py.dat')
+inh.printSpikes('inh.dat')
 
 ##py_py.saveConnections('py_py005.conn')
 
