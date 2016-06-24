@@ -29,6 +29,7 @@ In the reminder of this text we will use the name 'pynn' for our virtualenv.
 ###4. Prerequisites for NEST
 Install the following packages (they will be installed system-wide):
 > $ sudo apt-get install build-essential autoconf automake libtool libltdl7-dev libreadline6-dev libncurses5-dev libgsl0-dev python-all-dev python-numpy python-scipy python-matplotlib ipython
+
 > $ sudo apt-get install openmpi-bin openmpi-common libopenmpi-dev
 
 
@@ -54,16 +55,16 @@ export PYTHONPATH=$HOME/opt/nest/lib/python2.7/site-packages:$PYTHONPATH
 > $ python
 ~~~~
 >>> import nest
-              -- N E S T --
+-- N E S T --
 
-  Copyright (C) 2004 The NEST Initiative
-  Version 2.10.0 Jun 24 2016 13:15:45
+Copyright (C) 2004 The NEST Initiative
+Version 2.10.0 Jun 24 2016 13:15:45
 
 This program is provided AS IS and comes with
 NO WARRANTY. See the file LICENSE for details.
 
 Problems or suggestions?
-  Visit http://www.nest-simulator.org
+Visit http://www.nest-simulator.org
 
 Type 'nest.help()' to find out more about NEST.
 >>>
@@ -83,13 +84,13 @@ and uncomment the command mpirun at the beginning of nestrc
 ###11. Add the requirements for pyNN
 from the file requirements.txt, usually:
 ~~~~
-ConnPlotter==0.7a0  comes with NEST
+ConnPlotter==0.7a0  #comes with NEST
 lazyarray==0.2.8
 neo==0.3.3
 numpy==1.11.0
-PyNEST==2.10.0   comes with NEST
+PyNEST==2.10.0   #comes with NEST
 PyNN==0.8.1
 quantities==0+unknown
-Topology==2.10.0     comes with NEST
+Topology==2.10.0     #comes with NEST
 wheel==0.24.0
 ~~~~
