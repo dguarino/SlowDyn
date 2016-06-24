@@ -53,6 +53,7 @@ export PYTHONPATH=$HOME/opt/nest/lib/python2.7/site-packages:$PYTHONPATH
 
 ###7. fast test
 > $ python
+
 ~~~~
 >>> import nest
 -- N E S T --
