@@ -6,17 +6,17 @@
   Modified by Zahara Girones 7 June 2016
 
     This file implements a PyNN version of the model detailed in
-  Destexhe, A. Self-sustained asynchronous irregular states and
+  Destexhe, "A. Self-sustained asynchronous irregular states and
   Up/Down states in thalamic, cortical and thalamocortical
-  networks of nonlinear integrate-and-fire neurons.
+  networks of nonlinear integrate-and-fire neurons".
   Journal of Computational Neuroscience 27: 493-506, 2009.
 
   arXiv preprint: http://arxiv.org/abs/0809.0654
-
-
 """
 
-import NeuroTools.signals,numpy.random,os
+import NeuroTools.signals,
+import numpy.random
+import os
 from pyNN.nest import *
 from numpy import *
 import matplotlib.pyplot as plot
@@ -25,7 +25,7 @@ from pyNN.utility import Timer
 
 ### Switch Statements
 DistanceDep = True
-run_time = .5               # ms
+run_time = 1000               # ms
 b = .01                         # b = .05 SA, .005 WA
 #
 dt         = 0.1           # (ms)
@@ -159,11 +159,13 @@ simCPUtime = timer.elapsedTime()
 
 print "Simulation Time: %s" % str(simCPUtime)
 
+# Saving Data
+print "Saving data ..."
+
 py.write_data('py.pkl', annotations={'script_name': __file__})
 inh.write_data('inh.pkl', annotations={'script_name': __file__})
 ##py_py.saveConnections('py_py005.conn')
 
-
 # Cleanup
 end()
-#
+print "... completed"
