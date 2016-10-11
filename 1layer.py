@@ -14,7 +14,7 @@
   arXiv preprint: http://arxiv.org/abs/0809.0654
 """
 
-import NeuroTools.signals,
+import NeuroTools.signals
 import numpy.random
 import os
 from pyNN.nest import *
@@ -22,31 +22,32 @@ from numpy import *
 import matplotlib.pyplot as plot
 from pyNN.utility import Timer
 
+##### All of these in def build_network:
 
-### Switch Statements
-DistanceDep = True
-run_time = 1000               # ms
-b = .01                         # b = .05 SA, .005 WA
-#
-dt         = 0.1           # (ms)
+Params = {
 
-# Population Numbers
-py_n = 400 #800  #1600
-inh_n = 100 # 200  #400
-#
+    ### Switch Statements
+    'DistanceDep' : True
+    'run_time' : 1000               # ms
+    'b' : .01                         # b = .05 SA, .005 WA
+    'dt': 0.1           # (ms)
 
-# Synaptic Conductances / External Stimulation
-g_e = 6e-3         # nS
-g_i = 67e-3        # nS
-g_ext = 6e-3
-stim_dur = 50.0
-p_c = .02
-#scale_factor = round((py_n+inh_n) / (pyB_n+inhB_n))
-inter_p_c = .01
-v_init = -60.0
-#
+    # Population Numbers
+    'py_n' : 400 #800  #1600
+    'inh_n' : 100 # 200  #400
 
-# Parameters
+    # Synaptic Conductances / External Stimulation
+    'g_e' : 6e-3         # nS
+    'g_i' : 67e-3        # nS
+    'g_ext': 6e-3
+    'stim_dur': 50.0
+    'p_c' : .02
+    #scale_factor = round((py_n+inh_n) / (pyB_n+inhB_n))
+    'inter_p_c' : .01
+    'v_init' : -60.0
+
+}
+
 
 py_params = {'tau_m'      : 20.0,             # ms
                'tau_syn_E'  : 5.0,
@@ -77,12 +78,13 @@ inh_params = {'tau_m'      : 20.0,             # ms
 
 print "Building Network"
 
-setup(timestep=dt)
+setup(timestep=dt) #does this have to be here ?
 
 # Create Populations
-py = Population( py_n, EIF_cond_alpha_isfa_ista, cellparams=py_params )
-inh = Population( inh_n, EIF_cond_alpha_isfa_ista, cellparams=inh_params )
-#
+Populations = {
+    'py' : Population( py_n, EIF_cond_alpha_isfa_ista, cellparams=py_params )
+    'inh': Population( inh_n, EIF_cond_alpha_isfa_ista, cellparams=inh_params )
+}
 
 # External Stimulation - Start of Simulation
 ext_py = Population( 1, SpikeSourcePoisson, cellparams={'start':0.0,'rate':50.,'duration':stim_dur} )
@@ -94,8 +96,8 @@ ext_prj_py = Projection(
     receptor_type = 'excitatory'
 )
 
+#why is ext_py not initialized and why is the Projection written here ?
 
-#
 py.initialize()
 inh.initialize()
 
@@ -145,11 +147,17 @@ inh_inh = Projection(
     receptor_type = 'inhibitory')
 print "Number of Synapses (inh_inh):", len(inh_inh)
 
+###### end of build_network, returns the dictionnary of populations
+
+# Parameter search example:
+# b_values = [.001,.005,.01,.02,.03,.04,.05]
+#for b_value in b_values:
+#   Populations['py'].set(b=b_value)
+
 # Recording
-py.record('spikes')
-inh.record('spikes')
-py[0:10].record('v')
-inh[0:10].record('v')
+for key in Populations.keys():
+    Populations[key].record('spikes')
+    Populations[key][0:2].record(('v', 'gsyn_exc','gsyn_inh'))
 
 print "Running Network"
 timer = Timer()
@@ -162,9 +170,9 @@ print "Simulation Time: %s" % str(simCPUtime)
 # Saving Data
 print "Saving data ..."
 
-py.write_data('py.pkl', annotations={'script_name': __file__})
-inh.write_data('inh.pkl', annotations={'script_name': __file__})
-##py_py.saveConnections('py_py005.conn')
+for key in Populations.keys():
+    Populations[key].write_data(key+'.pkl', annotations={'script_name': __file__})
+    ##py_py.saveConnections('py_py005.conn')
 
 # Cleanup
 end()
