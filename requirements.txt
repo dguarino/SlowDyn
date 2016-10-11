@@ -2,6 +2,7 @@ cycler==0.10.0
 interval==1.0.0
 lazyarray==0.2.8
 matplotlib==1.5.1
+mpi4py==2.0.0
 neo==0.3.3
 NeuroTools==0.3.1
 numpy==1.11.0
