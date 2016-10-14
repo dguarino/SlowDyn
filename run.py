@@ -8,7 +8,6 @@ from pyNN.utility import Timer
 import sys, getopt
 
 import helpers as h
-#import params as p
 
 usage_str = 'usage: run.py -p <param file>'
 
@@ -26,7 +25,6 @@ for opt, arg in opts:
     elif opt == '-p':
         print arg
         external = __import__(arg)
-
 
 Populations = h.build_network(external.params)
 

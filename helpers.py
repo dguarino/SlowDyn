@@ -7,6 +7,7 @@ from pyNN.utility import Timer
 
 
 def build_network(Params):
+    setup( timestep=Params['dt'])
 
     Populations = {}
     for popKey,popVal in Params['Populations'].iteritems():
@@ -48,13 +49,10 @@ def build_network(Params):
 def record_data(Params, Populations):
     for recPop, recVal in Params['Recorders'].iteritems():
         for elKey,elVal in recVal.iteritems():
-            #print elKey
-            #print elVal
             Populations[recPop][elVal['start']:elVal['end']].record( elKey )
 
 
 def run_simulation(Params):
-    setup(timestep=Params['dt'])
     print "Running Network"
     timer = Timer()
     timer.reset()
@@ -64,10 +62,8 @@ def run_simulation(Params):
 
 
 def save_data(Populations):
-    for key in Populations.keys():
+    for key,p in Populations.iteritems():
         if key != 'ext':
-            print key
-            p = Populations[key]
             p.write_data(key+'.pkl', annotations={'script_name': __file__})
 
 
