@@ -1,16 +1,18 @@
 import NeuroTools.signals
 import numpy.random
 import os
+from numpy import *
 from pyNN.nest import *
 from pyNN.utility import Timer
 
 
 def build_network(Params):
-    
+    setup( timestep=Params['dt'])
+
     Populations = {}
     for popKey,popVal in Params['Populations'].iteritems():
         Populations[popKey]=Population( popVal['n'], popVal['type'], cellparams=popVal['cellparams'] )
-        print Populations                                               
+        #print Populations
 
     Projections = {}
     for projKey,projVal in Params['Projections'].iteritems():
@@ -30,26 +32,27 @@ def build_network(Params):
         cells = Populations[modKey].local_cells
         if type(modVal['cells']['start']) == float:
             start = int(modVal['cells']['start']*len(cells))
-        else: start = modVal['cells']['start']
+        else:
+            start = modVal['cells']['start']
         if type(modVal['cells']['end']) == float:
            end = int(modVal['cells']['end']*len(cells))
-        else: end = modVal['cells']['end']                                    
+        else:
+            end = modVal['cells']['end']
         cells = cells[ start:end ]
         for cell in cells:
             for key,value in modVal['properties'].iteritems():
                 cell.key = value
+
     return Populations
 
-                                                       
-def record_data(Params,Populations):
+
+def record_data(Params, Populations):
     for recPop, recVal in Params['Recorders'].iteritems():
         for elKey,elVal in recVal.iteritems():
-            print elKey
-            Populations[recPop][elVal['start']:elVal['end']].record(elKey)
+            Populations[recPop][elVal['start']:elVal['end']].record( elKey )
 
 
 def run_simulation(Params):
-    setup(timestep=Params['dt'])
     print "Running Network"
     timer = Timer()
     timer.reset()
@@ -57,10 +60,11 @@ def run_simulation(Params):
     simCPUtime = timer.elapsedTime()
     print "Simulation Time: %s" % str(simCPUtime)
 
+
 def save_data(Populations):
-    for key in Populations.keys():
+    for key,p in Populations.iteritems():
         if key != 'ext':
-            Populations[key].write_data(key+'.pkl', annotations={'script_name': __file__})
+            p.write_data(key+'.pkl', annotations={'script_name': __file__})
 
 
 def plot_spiketrains(segment):
@@ -70,12 +74,14 @@ def plot_spiketrains(segment):
         plt.ylabel(segment.name)
         plt.setp(plt.gca().get_xticklabels(), visible=False)
 
+
 def plot_signal(signal, index, colour='b'):
     label = "Neuron %d" % signal.annotations['source_ids'][index]
     plt.plot(signal.times, signal[:, index], colour, label=label)
     plt.ylabel("%s (%s)" % (signal.name, signal.units._dimensionality.string))
     plt.setp(plt.gca().get_xticklabels(), visible=False)
     plt.legend()
+
 
 def load_spikelist( filename, t_start=.0, t_stop=1. ):
     spiketrains = []
