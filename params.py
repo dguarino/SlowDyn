@@ -1,5 +1,10 @@
+import NeuroTools.signals
+import numpy.random
+import os
+from pyNN.nest import *
 
-{
+
+Params ={
 
     'DistanceDep': True,
     'run_time': 1000, # ms
@@ -14,7 +19,7 @@
                 'rate':50.,
                 'duration':50.0
             }
-        }
+        },
        'py' : {
             'n': 400, # units
             'type': EIF_cond_alpha_isfa_ista,

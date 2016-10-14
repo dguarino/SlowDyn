@@ -98,8 +98,8 @@ ext_prj_py = Projection(
 
 #why is ext_py not initialized and why is the Projection written here ?
 
-py.initialize()
-inh.initialize()
+for key in Populations.keys()
+    Populations[key].initialize()
 
 
 # LTS Subgroup - 10% of Layer #B
