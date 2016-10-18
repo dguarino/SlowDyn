@@ -9,6 +9,7 @@ from pyNN.nest import *
 from numpy import *
 import matplotlib.pyplot as plot
 from pyNN.utility import Timer
+from pyNN.utility.plotting import Figure, Panel
 
 
 N= 500 # 1000               # Total number of neurons
@@ -81,3 +82,29 @@ plot.savefig('raster.png')
 #stat.write("  Layer A Interneuron Mean Rate: %s" % str(inh_sp.mean_rate(t_start=stim_dur,t_stop=run_time)));
 #stat.write("  Layer A Interneuron Mean CV: %s" % str(mean(inh_sp.cv_isi(float_only=True))));
 #stat.close()
+
+
+neo_py = pickle.load( open('py.pkl', "rb") )
+neo_inh = pickle.load( open('inh.pkl','rb') )
+
+data_py = neo_py.segments[0]
+data_inh = neo_inh.segments[0]
+
+vm_py = data_py.filter(name = 'v')[0]
+vm_inh = data_inh.filter(name = 'v')[0]
+
+Figure(
+    Panel(vm_py, ylabel="Membrane potential (mV)"),
+    Panel(data_py.spiketrains, xlabel="Time (ms)", xticks=True)
+).save("py_results.png")
+
+
+Figure(
+    Panel(vm_inh, ylabel="Membrane potential (mV)"),
+    Panel(data_inh.spiketrains, xlabel="Time (ms)", xticks=True)
+).save("inh_results.png")
+
+
+fig = plot.figure()
+n,bins,patches = plot.hist(vm_py)
+fig.savefig('histogramme.png')

@@ -4,7 +4,7 @@ from pyNN.utility import Timer
 params = {
 
     'DistanceDep': True,
-    'run_time': 100, # ms
+    'run_time': 1000, # ms
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -32,7 +32,7 @@ params = {
                 'tau_w'      : 600.0,
                 'cm'         : 0.200,
                 'a'          : 0.001e3,
-                'b'          : .1
+                'b'          : .02
             }
         },
         'inh' : {
@@ -81,14 +81,14 @@ params = {
             'source' : 'inh',
             'target' : 'py',
             'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=67e-3),
+            'synapse_type' : StaticSynapse(weight=30e-3),
             'receptor_type' : 'inhibitory'
         },
         'inh_inh' : {
             'source' : 'inh',
             'target' : 'inh',
             'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=67e-3),
+            'synapse_type' : StaticSynapse(weight=30e-3),
             'receptor_type' : 'inhibitory'
         }
     },
