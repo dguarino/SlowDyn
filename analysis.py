@@ -13,9 +13,9 @@ from pyNN.utility.plotting import Figure, Panel
 
 
 N= 500 # 1000               # Total number of neurons
-run_time = 1000.               # ms
+run_time = 500.               # ms
 b = .01                     # b = .05 SA, .005 WA
-stim_dur = 50.0
+stim_dur = 100.0
 
 
 def plot_spiketrains(segment):

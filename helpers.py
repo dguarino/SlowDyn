@@ -64,6 +64,7 @@ def run_simulation(Params):
 def save_data(Populations):
     for key,p in Populations.iteritems():
         if key != 'ext':
+            data = p.get_data()
             p.write_data(key+'.pkl', annotations={'script_name': __file__})
 
 

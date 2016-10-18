@@ -1,13 +1,6 @@
 # SlowDyn
 Cortical network simulation for slow wave oscillation.
 
-Developed in the Destexhe Lab
-
-Written in pyNN by Lyle Muller 18 Mar 2010
-
-Modified by Zahara Girones 7 June 2016
-
-
 This file implements a PyNN version of the model detailed in Destexhe, "A. Self-sustained asynchronous irregular states and Up/Down states in thalamic, cortical and thalamocortical networks of nonlinear integrate-and-fire neurons" (Journal of Computational Neuroscience 27: 493-506, 2009).
 
 ## Installation of NEST and pyNN

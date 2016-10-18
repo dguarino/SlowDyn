@@ -14,7 +14,7 @@ params = {
             'cellparams' : {
                 'start':0.0,
                 'rate':50.,
-                'duration':50.0
+                'duration':100.0
             }
         },
        'py' : {
@@ -96,6 +96,10 @@ params = {
     'Recorders' : {
         'py' : {
             'spikes' :  {
+                'start' : 0,
+                'end' : 10,
+            },
+            'gsyn_exc' : {
                 'start' : 0,
                 'end' : 10,
             },
