@@ -1,20 +1,10 @@
-<<<<<<< HEAD:params.py
-import NeuroTools.signals
-import numpy.random
-import os
-from pyNN.nest import *
-
-
-Params ={
-=======
 from pyNN.nest import *
 from pyNN.utility import Timer
 
 params = {
->>>>>>> 94320cb2dffa3cf0cf656b155eb5053778ef362f:params
 
     'DistanceDep': True,
-    'run_time': 500, # ms
+    'run_time': 100, # ms
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -24,7 +14,7 @@ params = {
             'cellparams' : {
                 'start':0.0,
                 'rate':50.,
-                'duration':500.0
+                'duration':50.0
             }
         },
        'py' : {

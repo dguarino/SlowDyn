@@ -95,9 +95,10 @@ ext_prj_py = Projection(
 )
 
 
-#
-py.initialize()
-inh.initialize()
+
+for key in Populations.keys()
+    Populations[key].initialize()
+
 
 
 # LTS Subgroup - 10% of Layer #B
