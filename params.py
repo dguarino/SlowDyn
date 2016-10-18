@@ -4,7 +4,7 @@ from pyNN.utility import Timer
 params = {
 
     'DistanceDep': True,
-    'run_time': 1000, # ms
+    'run_time': 2000, # ms
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -18,7 +18,7 @@ params = {
             }
         },
        'py' : {
-            'n': 400, # units
+            'n': 800, # units
             'type': EIF_cond_alpha_isfa_ista,
             'cellparams': {
                 'tau_m'      : 20.0,             # ms
@@ -36,7 +36,7 @@ params = {
             }
         },
         'inh' : {
-            'n': 100,
+            'n': 200,
             'type': EIF_cond_alpha_isfa_ista,
             'cellparams': {
                 'tau_m'      : 20.0,             # ms

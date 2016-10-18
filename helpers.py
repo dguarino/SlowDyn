@@ -4,6 +4,9 @@ import os
 from numpy import *
 from pyNN.nest import *
 from pyNN.utility import Timer
+import pickle
+from pyNN.utility.plotting import Figure, Panel
+import matplotlib.pyplot as plot
 
 
 def build_network(Params):
@@ -61,11 +64,11 @@ def run_simulation(Params):
     print "Simulation Time: %s" % str(simCPUtime)
 
 
-def save_data(Populations):
+def save_data(Populations,addon=''):
     for key,p in Populations.iteritems():
         if key != 'ext':
             data = p.get_data()
-            p.write_data(key+'.pkl', annotations={'script_name': __file__})
+            p.write_data(key+addon+'.pkl', annotations={'script_name': __file__})
 
 
 def plot_spiketrains(segment):
@@ -99,28 +102,21 @@ def load_spikelist( filename, t_start=.0, t_stop=1. ):
     return spklist
 
 
-def analyse_data():
+def analyse(Populations,filename):
 
-    # Pyramidal
-    py_sp = load_spikelist('py.pkl', t_start=.0, t_stop=run_time)
-    print "Layer A Pyramidal Mean Rate (initial stimulation): %s" % str(py_sp.mean_rate(t_start=0,t_stop=stim_dur))
-    print "Layer A Pyramidal Mean Rate: %s" % str(py_sp.mean_rate(t_start=stim_dur,t_stop=run_time))
-    print "Layer A Pyramidal Mean CV: %s" % str(mean(py_sp.cv_isi(float_only=True)))
-    py_sp.raster_plot(display=plot.subplot(221))
-    plot.ylabel('PY Layer A')
-    plot.xlabel('Time (ms)')
-    plot.title('b = %s' % str(b))
-    plot.axhline(y=.1*N,linewidth=2,color='r')
+    for key,p in Populations.iteritems():
+        if key != 'ext':
+            neo = pickle.load( open(key+filename+'.pkl', "rb") )
+            data = neo.segments[0]
+
+            vm_py = data.filter(name = 'v')[0]
+            Figure(
+                Panel(vm_py, ylabel="Membrane potential (mV)"),
+                Panel(data.spiketrains, xlabel="Time (ms)", xticks=True)
+            ).save(key+filename+".png")
 
 
-    # Inhibitory
-    inh_sp = load_spikelist('inh.pkl', t_start=.0, t_stop=run_time)
-    print "Layer A Interneuron Mean Rate (initial stimulation): %s" % str(inh_sp.mean_rate(t_start=0,t_stop=stim_dur))
-    print "Layer A Interneuron Mean Rate: %s" % str(inh_sp.mean_rate(t_start=stim_dur,t_stop=run_time))
-    print "Layer A Interneuron Mean CV: %s" % str(mean(inh_sp.cv_isi(float_only=True)))
-    inh_sp.raster_plot(display=plot.subplot(222))
-    plot.ylabel('INH Layer A')
-    plot.xlabel('Time (ms)')
-    plot.title('N = %s' % str(N))
-
-    plot.savefig('raster.png')
+            fig = plot.figure()
+            n,bins,patches = plot.hist(vm_py)
+            fig.savefig(key+filename+'hist.png')
+            fig.clear()
