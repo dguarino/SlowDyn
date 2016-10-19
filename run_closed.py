@@ -31,6 +31,8 @@ class SetRate(object):
               #print data
               gsyn = data.filter(name="gsyn_exc")
               print gsyn
+              # con to LFP
+              # LFP into rythm_func
           self.populations['ext'].set(rate=next(rate_generator))
         except StopIteration:
             pass
