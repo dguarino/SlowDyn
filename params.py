@@ -116,7 +116,7 @@ params = {
             'gsyn_inh' :{
                 'start' : 0,
                 'end' : 10,
-            },    
+            },
             'v' : {
                 'start' : 0,
                 'end' : 10,
@@ -131,7 +131,7 @@ params = {
                 'end' : .1
             },
             'properties' : {
-                'a' : 0.02e3,
+                'a' : 0.02,
                 'b' : 0.0
             }
         }

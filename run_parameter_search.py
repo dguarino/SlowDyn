@@ -11,6 +11,14 @@ import helpers as h
 import itertools as it
 
 
+def replace(dic, keys,value):
+    getValue(dic,keys[:-1])[keys[-1]]=value
+
+def getValue(dic, keys):
+    return reduce(lambda d, k: d[k], keys, dic)
+
+
+
 usage_str = 'usage: run.py -p <param file> -s <search file>'
 try:
       opts, args = getopt.getopt(sys.argv[1:], "hp:s:" )
@@ -30,11 +38,16 @@ for opt, arg in opts:
         print arg
         search = __import__(arg)
 
-# http://stackoverflow.com/questions/3873654/combinations-from-dictionary-with-list-values-using-python
-varNames = sorted(search.params)
-combinations = [dict(zip(varNames, prod)) for prod in it.product(*(search.params[varName] for varName in varNames))]
-#print len(combinations),combinations
 
+# create parameter combinations
+testParams = sorted(search.params) # give an order to dict (by default unordered)
+# create an array of dictionaries:
+# each dict being the joining of one of the testKey and a value testVal
+# each testVal is produced by internal product of all array in testParams
+combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search.params[testKey] for testKey in testParams))]
+print len(combinations),combinations # to be commented
+
+# run combinations
 for i,comb in enumerate(combinations):
     print "param combination",i
     print "current set:",comb
@@ -42,16 +55,19 @@ for i,comb in enumerate(combinations):
     # replacement
     for ckey,val in comb.iteritems():
         keys = ckey.split('.') # get list from dotted string
-        external.params[keys[-1]] = val # this is what i did not remember
+        #print "before:", getValue(external.params, keys)
+        replace(external.params,keys,val)
+        #print "after:", getValue(external.params, keys)
 
     Populations = h.build_network(external.params)
+    print 'dopo fuori:',getattr(Populations['py'][7], 'a')
 
     h.record_data(external.params, Populations)
 
     h.run_simulation(external.params)
 
-    h.save_data(Populations,addon=str(value))
+    h.save_data(Populations,addon=ckey+'='+str(val))
 
     end()
 
-    h.analyse(Populations,str(value))
+    h.analyse(Populations,ckey+'='+str(val))

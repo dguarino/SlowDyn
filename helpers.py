@@ -15,8 +15,7 @@ def build_network(Params):
 
     Populations = {}
     for popKey,popVal in Params['Populations'].iteritems():
-        Populations[popKey]=Population( popVal['n'], popVal['type'], cellparams=popVal['cellparams'] )
-        #print Populations
+        Populations[popKey] = Population( popVal['n'], popVal['type'], cellparams=popVal['cellparams'] )
 
     Projections = {}
     for projKey,projVal in Params['Projections'].iteritems():
@@ -32,20 +31,29 @@ def build_network(Params):
     for key in Populations.keys():
         Populations[key].initialize()
 
+    print 'prima dentro:',Populations['py'][7].a
+
     for modKey,modVal in Params['Modifiers'].iteritems():
-        cells = Populations[modKey].local_cells
         if type(modVal['cells']['start']) == float:
-            start = int(modVal['cells']['start']*len(cells))
+            start = int(modVal['cells']['start'] * Populations[modKey].local_size)
         else:
             start = modVal['cells']['start']
         if type(modVal['cells']['end']) == float:
-           end = int(modVal['cells']['end']*len(cells))
+           end = int(modVal['cells']['end'] * Populations[modKey].local_size)
         else:
             end = modVal['cells']['end']
-        cells = cells[ start:end ]
-        for cell in cells:
-            for key,value in modVal['properties'].iteritems():
-                cell.key = value
+
+        #cells = cells[ start:end ]
+        #for cell in cells:
+        #    for key,value in modVal['properties'].iteritems():
+        #        cell.key = value
+
+        cells = Populations[modKey].local_cells
+        for key,value in modVal['properties'].iteritems():
+            print list(cells[ start:end ])
+            Populations[modKey][ list(cells[ start:end ]) ].set(**{key:value})
+
+    print 'dopo dentro:',getattr(Populations['py'][7], 'a')
 
     return Populations
 
@@ -104,7 +112,7 @@ def load_spikelist( filename, t_start=.0, t_stop=1. ):
 
 
 def analyse(Populations,filename):
-    
+
     pop_number = len(Populations) - 1
     pop_index = 0
     for key,p in Populations.iteritems():
@@ -121,7 +129,7 @@ def analyse(Populations,filename):
             else:
                 gsyn = gsyn_exc[0]
 
-           # all on same plot      
+           # all on same plot
            # fig = plot.figure(1)
            # plot.subplot(pop_number*3,1,1+3*(pop_index-1))
            # plot.plot(vm)
@@ -146,6 +154,6 @@ def analyse(Populations,filename):
             plot.subplot(pop_number,1,pop_index)
             n,bins,patches = plot.hist(np.mean(vm,0))
             fig.savefig('results/'+filename+'hist.png')
-            
+
             if pop_index == pop_number :
                 fig.clear()
