@@ -37,5 +37,7 @@ h.run_simulation(external.params)
 
 h.save_data(Populations)
 
+
 end()
 
+h.analyse(Populations,'')

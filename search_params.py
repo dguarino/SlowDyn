@@ -6,8 +6,10 @@ params = {
 
     'Populations' : {
         'py' : {
-            'n' : [800]
-         }
+            'cellparams' : {
+                'b':[0.01]
+            } 
+        }
     
     }
 

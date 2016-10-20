@@ -81,14 +81,14 @@ params = {
             'source' : 'inh',
             'target' : 'py',
             'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=30e-3),
+            'synapse_type' : StaticSynapse(weight=67e-3),
             'receptor_type' : 'inhibitory'
         },
         'inh_inh' : {
             'source' : 'inh',
             'target' : 'inh',
             'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=30e-3),
+            'synapse_type' : StaticSynapse(weight=67e-3),
             'receptor_type' : 'inhibitory'
         }
     },
@@ -97,7 +97,7 @@ params = {
         'py' : {
             'spikes' :  {
                 'start' : 0,
-                'end' : 10,
+                'end' : 100,
             },
             'gsyn_exc' : {
                 'start' : 0,
@@ -113,6 +113,10 @@ params = {
                 'start' : 0,
                 'end' : 10,
             },
+            'gsyn_inh' :{
+                'start' : 0,
+                'end' : 10,
+            },    
             'v' : {
                 'start' : 0,
                 'end' : 10,

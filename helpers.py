@@ -1,4 +1,5 @@
 import NeuroTools.signals
+import numpy as np
 import numpy.random
 import os
 from numpy import *
@@ -68,15 +69,15 @@ def save_data(Populations,addon=''):
     for key,p in Populations.iteritems():
         if key != 'ext':
             data = p.get_data()
-            p.write_data(key+addon+'.pkl', annotations={'script_name': __file__})
+            p.write_data('results/'+key+addon+'.pkl', annotations={'script_name': __file__})
 
 
 def plot_spiketrains(segment):
     for spiketrain in segment.spiketrains:
         y = np.ones_like(spiketrain) * spiketrain.annotations['source_id']
-        plt.plot(spiketrain, y, '.')
-        plt.ylabel(segment.name)
-        plt.setp(plt.gca().get_xticklabels(), visible=False)
+        plot.plot(spiketrain, y, '.')
+        plot.ylabel(segment.name)
+        plot.setp(plot.gca().get_xticklabels(), visible=False)
 
 
 def plot_signal(signal, index, colour='b'):
@@ -103,20 +104,48 @@ def load_spikelist( filename, t_start=.0, t_stop=1. ):
 
 
 def analyse(Populations,filename):
-
+    
+    pop_number = len(Populations) - 1
+    pop_index = 0
     for key,p in Populations.iteritems():
         if key != 'ext':
-            neo = pickle.load( open(key+filename+'.pkl', "rb") )
+            pop_index = pop_index + 1
+            neo = pickle.load( open('results/'+key+filename+'.pkl', "rb") )
             data = neo.segments[0]
 
-            vm_py = data.filter(name = 'v')[0]
+            vm = data.filter(name = 'v')[0]
+            gsyn_exc = data.filter(name="gsyn_exc")
+            gsyn_inh = data.filter(name="gsyn_inh")
+            if not gsyn_exc:
+                gsyn = gsyn_inh[0]
+            else:
+                gsyn = gsyn_exc[0]
+
+           # all on same plot      
+           # fig = plot.figure(1)
+           # plot.subplot(pop_number*3,1,1+3*(pop_index-1))
+           # plot.plot(vm)
+           # plot.ylabel("Membrane potential (mV)")
+           # plot.subplot(pop_number*3,1,2+3*(pop_index-1))
+           # plot.plot(gsyn)
+           # plot.ylabel("Synaptic conductance (uS)")
+           # plot.subplot(pop_number*3,1,3+3*(pop_index-1))
+           # plot_spiketrains(data)
+           # plot.xlabel("Time (ms)")
+           # plot.setp(plot.gca().get_xticklabels(), visible=True)
+           # fig.savefig(filename+".png")
+
             Figure(
-                Panel(vm_py, ylabel="Membrane potential (mV)"),
+                Panel(vm, ylabel="Membrane potential (mV)",legend = None),
+                Panel(gsyn,ylabel = "Synaptic conductance (uS)",legend = None),
                 Panel(data.spiketrains, xlabel="Time (ms)", xticks=True)
-            ).save(key+filename+".png")
+             ).save('results/'+key+'-'+filename+".png")
 
 
-            fig = plot.figure()
-            n,bins,patches = plot.hist(vm_py)
-            fig.savefig(key+filename+'hist.png')
-            fig.clear()
+            fig = plot.figure(2)
+            plot.subplot(pop_number,1,pop_index)
+            n,bins,patches = plot.hist(np.mean(vm,0))
+            fig.savefig('results/'+filename+'hist.png')
+            
+            if pop_index == pop_number :
+                fig.clear()

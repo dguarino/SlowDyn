@@ -52,12 +52,19 @@ for value in values:
 
     Populations = h.build_network(external.params)
 
+    cells = Populations['py'].local_cells
+    cells = cells[0:int(0.2*len(cells))]
+    for cell in cells:
+        cell.a = 0.02e3
+        cell.b = 0.0
+
+    
     h.record_data(external.params, Populations)
 
     h.run_simulation(external.params)
-
-    h.save_data(Populations,addon=str(value))
+    
+    h.save_data(Populations,addon=keys[-1]+str(value))
 
     end()
 
-    h.analyse(Populations,str(value))
+    h.analyse(Populations,keys[-1]+str(value))
