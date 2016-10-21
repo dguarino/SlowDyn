@@ -1,7 +1,7 @@
 params = {
-    'Populations.py.n' : [80, 100],
-    'Populations.inh.n' : [20, 25],
-    'Populations.py.cellparams.b': [0.1, 0.01, 0.001],
+   # 'Populations.py.n' : [80, 100],
+   # 'Populations.inh.n' : [20, 25],
+    'Populations.py.cellparams.b': [ 0.01, 0.005],
     #'Populations.inh.cellparams.b': [0.02, 0.002],
 }
 

@@ -128,10 +128,10 @@ params = {
         'py' : {
             'cells' : {
                 'start' : 0,
-                'end' : .1
+                'end' : .2
             },
             'properties' : {
-                'a' : 0.02,
+                'a' : 0.02e3,
                 'b' : 0.0
             }
         }

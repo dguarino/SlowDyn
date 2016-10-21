@@ -43,11 +43,6 @@ def build_network(Params):
         else:
             end = modVal['cells']['end']
 
-        #cells = cells[ start:end ]
-        #for cell in cells:
-        #    for key,value in modVal['properties'].iteritems():
-        #        cell.key = value
-
         cells = Populations[modKey].local_cells
         for key,value in modVal['properties'].iteritems():
             print list(cells[ start:end ])
@@ -152,8 +147,18 @@ def analyse(Populations,filename):
 
             fig = plot.figure(2)
             plot.subplot(pop_number,1,pop_index)
-            n,bins,patches = plot.hist(np.mean(vm,0))
+            vm = np.reshape(vm,len(vm)*10)
+            n,bins,patches = plot.hist(vm,50)
             fig.savefig('results/'+filename+'hist.png')
+            
+            # metric supposed to characterize bimodality
+            bins = bins[:-1]
+            prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm))])/sum(n)
+            prop_right = sum([n[i] for i,data in enumerate(bins) if bins[i]>(np.mean(vm)+np.std(vm))])/sum(n)
+            print "score",prop_left*prop_right
 
             if pop_index == pop_number :
                 fig.clear()
+                
+                
+            
