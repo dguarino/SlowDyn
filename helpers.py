@@ -149,6 +149,11 @@ def analyse(Populations,filename):
                 Panel(data.spiketrains, xlabel="Time (ms)", xticks=True)
              ).save('results/'+key+'-'+filename+".png")
 
+            # metric supposed to characterize bimodality
+            bins = bins[:-1]
+            prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm))])/sum(n)
+            prop_right = sum([n[i] for i,data in enumerate(bins) if bins[i]>(np.mean(vm)+np.std(vm))])/sum(n)
+            print "score",prop_left*prop_right
 
             fig = plot.figure(2)
             plot.subplot(pop_number,1,pop_index)
