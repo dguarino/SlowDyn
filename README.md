@@ -28,12 +28,14 @@ Install the following packages (they will be installed system-wide):
 
 ###5. Install NEST
 Follow the instructions at http://www.nest-simulator.org/installation/
+~~~~
 > $ tar -xvf nest-2.10.0.tar.gz
 > $ cd nest-2.10.0/
 > $ ./configure --with-mpi  --prefix=$HOME/opt/nest
 > $ sudo make
 > $ sudo make install
 > $ sudo make installcheck
+~~~~
 
 ###6. Tell bash how to find NEST
 > $ vi .bashrc
