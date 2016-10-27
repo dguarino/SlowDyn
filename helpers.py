@@ -31,7 +31,7 @@ def build_network(Params):
     for key in Populations.keys():
         Populations[key].initialize()
 
-    print 'prima dentro:',Populations['py'][7].a
+   # print 'prima dentro:',Populations['py'][7].a
 
     for modKey,modVal in Params['Modifiers'].iteritems():
         if type(modVal['cells']['start']) == float:
@@ -45,10 +45,10 @@ def build_network(Params):
 
         cells = Populations[modKey].local_cells
         for key,value in modVal['properties'].iteritems():
-            print list(cells[ start:end ])
+            #print list(cells[ start:end ])
             Populations[modKey][ list(cells[ start:end ]) ].set(**{key:value})
 
-    print 'dopo dentro:',getattr(Populations['py'][7], 'a')
+   # print 'dopo dentro:',getattr(Populations['py'][7], 'a')
 
     return Populations
 
@@ -78,7 +78,7 @@ def save_data(Populations,addon=''):
 def plot_spiketrains(segment):
     for spiketrain in segment.spiketrains:
         y = np.ones_like(spiketrain) * spiketrain.annotations['source_id']
-        plot.plot(spiketrain, y, '.')
+        plot.plot(spiketrain, y,linestyle='dashed', marker='o',markersize =1)
         plot.ylabel(segment.name)
         plot.setp(plot.gca().get_xticklabels(), visible=False)
 
@@ -139,26 +139,28 @@ def analyse(Populations,filename):
            # fig.savefig(filename+".png")
 
             Figure(
-                Panel(vm, ylabel="Membrane potential (mV)",legend = None),
-                Panel(gsyn,ylabel = "Synaptic conductance (uS)",legend = None),
-                Panel(data.spiketrains, xlabel="Time (ms)", xticks=True)
+                Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,legend = None),
+                Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),
+                Panel(data.spiketrains, xlabel="Time (ms)", xticks=True,markersize=1)
              ).save('results/'+key+'-'+filename+".png")
 
 
             fig = plot.figure(2)
             plot.subplot(pop_number,1,pop_index)
-            vm = np.reshape(vm,len(vm)*10)
-            n,bins,patches = plot.hist(vm,50)
+            n,bins,patches = plot.hist(np.mean(vm,0),50)
             fig.savefig('results/'+filename+'hist.png')
             
             # metric supposed to characterize bimodality
             bins = bins[:-1]
             prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm))])/sum(n)
             prop_right = sum([n[i] for i,data in enumerate(bins) if bins[i]>(np.mean(vm)+np.std(vm))])/sum(n)
+            score = prop_left*prop_right
             print "score",prop_left*prop_right
 
             if pop_index == pop_number :
                 fig.clear()
+
+            return score
                 
                 
             

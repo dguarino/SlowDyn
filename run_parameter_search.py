@@ -1,5 +1,6 @@
 import NeuroTools.signals
 import numpy.random
+import numpy as np
 import os
 from pyNN.nest import *
 from numpy import *
@@ -47,6 +48,7 @@ testParams = sorted(search.params) # give an order to dict (by default unordered
 combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search.params[testKey] for testKey in testParams))]
 print len(combinations),combinations # to be commented
 
+score = {}
 # run combinations
 for i,comb in enumerate(combinations):
     print "param combination",i
@@ -60,14 +62,20 @@ for i,comb in enumerate(combinations):
         #print "after:", getValue(external.params, keys)
 
     Populations = h.build_network(external.params)
-    print 'dopo fuori:',getattr(Populations['py'][7], 'a')
+    #print 'dopo fuori:',getattr(Populations['py'][7], 'a')
 
     h.record_data(external.params, Populations)
 
     h.run_simulation(external.params)
 
-    h.save_data(Populations,addon=ckey+'='+str(val))
+    h.save_data(Populations,addon=str(comb))
 
     end()
+    
+    score_local = h.analyse(Populations,str(comb))
+    score[str(comb)] = score_local
+    
+    target = open('score.txt', 'a')
+    target.write(str(score.iteritems()))
 
-    h.analyse(Populations,ckey+'='+str(val))
+

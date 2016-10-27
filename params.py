@@ -97,7 +97,7 @@ params = {
         'py' : {
             'spikes' :  {
                 'start' : 0,
-                'end' : 100,
+                'end' : 1000,
             },
             'gsyn_exc' : {
                 'start' : 0,
@@ -111,7 +111,7 @@ params = {
         'inh' : {
             'spikes' :  {
                 'start' : 0,
-                'end' : 10,
+                'end' : 1000,
             },
             'gsyn_inh' :{
                 'start' : 0,
