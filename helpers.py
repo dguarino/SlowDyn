@@ -1,6 +1,6 @@
 import NeuroTools.signals
 import numpy as np
-import numpy.random
+import random as rd
 import os
 from numpy import *
 from pyNN.nest import *
@@ -30,9 +30,8 @@ def build_network(Params):
             synapse_type = projVal['synapse_type'](weight = projVal['weight']),
             receptor_type = projVal['receptor_type']
         )
-       # print "Number of Synapses ("+p['source']+'_'+p['target'+']):', len(py_inh)
-        print Projections[projKey].get('weight',format = 'list')[0]
-       
+        
+
     for key in Populations.keys():
         Populations[key].initialize()
 
@@ -61,7 +60,10 @@ def build_network(Params):
 def record_data(Params, Populations):
     for recPop, recVal in Params['Recorders'].iteritems():
         for elKey,elVal in recVal.iteritems():
-            Populations[recPop][elVal['start']:elVal['end']].record( elKey )
+            if elVal == 'all':
+                Populations[recPop].record( elKey )
+            else:
+                Populations[recPop][elVal['start']:elVal['end']].record( elKey )
 
 
 def run_simulation(Params):
@@ -132,15 +134,16 @@ def analyse(Populations,filename):
                 gsyn = gsyn_inh[0]
             else:
                 gsyn = gsyn_exc[0]
-
+                        
             Figure(
                 Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,legend = None),
                 Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),
-                Panel(data.spiketrains, xlabel="Time (ms)", xticks=True,markersize=1)
+                Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True)
              ).save('results/'+key+'-'+filename+".png")
 
 
             fig = plot.figure(2)
+
             plot.subplot(pop_number,1,pop_index)
             n,bins,patches = plot.hist(np.mean(vm,1),50)
             fig.savefig('results/'+filename+'hist.png')

@@ -4,7 +4,7 @@ from pyNN.utility import Timer
 params = {
 
     'DistanceDep': True,
-    'run_time': 5000, # ms
+    'run_time': 10000, # ms
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -28,11 +28,11 @@ params = {
                 'v_rest'     : -60.0,
                 'v_reset'    : -60.0,
                 'v_thresh'   : -50.0,
-                'delta_T'    : 2.5,
+                'delta_T'    : 2.5, #0.8 Naud et al.2008
                 'tau_w'      : 600.0,
                 'cm'         : 0.200,
-                'a'          : 0.001e3,
-                'b'          : .02
+                'a'          : 0.001,#0.8e-3 Naud et al. 2008
+                'b'          : .02 #0.065 Naud et al. 2008
             }
         },
         'inh' : {
@@ -48,9 +48,9 @@ params = {
                 'v_thresh'   : -50.0,
                 'delta_T'    : 2.5,
                 'tau_w'      : 600.0,
-                'cm'         : 0.200,
-                'a'          : 0.001e3,
-                'b'          : 0.0
+                'cm'         : 0.200,#uS
+                'a'          : 0.001,#uS
+                'b'          : 0.0 #nA
             }
         }
     },
@@ -100,17 +100,14 @@ params = {
 
     'Recorders' : {
         'py' : {
-            'spikes' :  {
-                'start' : 0,
-                'end' : 1000,
-            },
+            'spikes' :  'all',
             'gsyn_exc' : {
-                'start' : 0,
-                'end' : 10,
+                'start' :200,
+                'end' : 210,
             },
             'v' : {
-                'start' : 0,
-                'end' : 10,
+                'start' :200,
+                'end' : 210,
             }
         },
         'inh' : {
@@ -133,10 +130,10 @@ params = {
         'py' : {
             'cells' : {
                 'start' : 0,
-                'end' : .2
+                'end' : 0.1
             },
             'properties' : {
-                'a' : 0.02e3,
+                'a' : 0.02, #uS
                 'b' : 0.0
             }
         }
