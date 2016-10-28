@@ -69,7 +69,6 @@ for i,comb in enumerate(combinations):
 
     h.run_simulation(external.params)
     
-
     h.save_data(Populations,addon=str(comb))
     
     score_local = h.analyse(Populations,str(comb))
@@ -78,7 +77,8 @@ for i,comb in enumerate(combinations):
 
     end()
 
-max = np.max(score.values())
-print score.keys()[score.values().index(max)]
+#for key in Populations:
+#    max = np.max(score.values())
+#    print score.keys()[score.values().index(max)]
 target = open('score.txt', 'a')
 target.write(str(score))

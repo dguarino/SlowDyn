@@ -15,7 +15,11 @@ def build_network(Params):
 
     Populations = {}
     for popKey,popVal in Params['Populations'].iteritems():
-        Populations[popKey] = Population( popVal['n'], popVal['type'], cellparams=popVal['cellparams'] )
+        if isinstance(popVal['n'],dict):
+            number = int(Params['Populations'][popVal['n']['ref']]['n'] * popVal['n']['ratio'])
+            Populations[popKey] = Population( number, popVal['type'], cellparams=popVal['cellparams'] )
+        else:
+            Populations[popKey] = Population( popVal['n'], popVal['type'], cellparams=popVal['cellparams'] )
 
     Projections = {}
     for projKey,projVal in Params['Projections'].iteritems():
@@ -23,11 +27,12 @@ def build_network(Params):
             Populations[ projVal['source'] ],
             Populations[ projVal['target'] ],
             connector = projVal['connector'],
-            synapse_type = projVal['synapse_type'],
+            synapse_type = projVal['synapse_type'](weight = projVal['weight']),
             receptor_type = projVal['receptor_type']
         )
        # print "Number of Synapses ("+p['source']+'_'+p['target'+']):', len(py_inh)
-
+        print Projections[projKey].get('weight',format = 'list')[0]
+       
     for key in Populations.keys():
         Populations[key].initialize()
 
@@ -134,15 +139,10 @@ def analyse(Populations,filename):
                 Panel(data.spiketrains, xlabel="Time (ms)", xticks=True,markersize=1)
              ).save('results/'+key+'-'+filename+".png")
 
-            # metric supposed to characterize bimodality
-            bins = bins[:-1]
-            prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm))])/sum(n)
-            prop_right = sum([n[i] for i,data in enumerate(bins) if bins[i]>(np.mean(vm)+np.std(vm))])/sum(n)
-            print "score",prop_left*prop_right
 
             fig = plot.figure(2)
             plot.subplot(pop_number,1,pop_index)
-            n,bins,patches = plot.hist(np.mean(vm,0),50)
+            n,bins,patches = plot.hist(np.mean(vm,1),50)
             fig.savefig('results/'+filename+'hist.png')
             
             # metric supposed to characterize bimodality

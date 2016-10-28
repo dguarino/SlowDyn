@@ -1,6 +1,5 @@
 params = {
-    'Populations.py.n' : [400],
-    'Populations.inh.n' : [100],
+    'Populations.py.n' : [10000],
     'Populations.py.cellparams.b': [ 0.01,0.02, 0.005],
 }
 

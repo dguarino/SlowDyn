@@ -36,7 +36,7 @@ params = {
             }
         },
         'inh' : {
-            'n': 200,
+            'n': {'ref':'py','ratio':0.25},
             'type': EIF_cond_alpha_isfa_ista,
             'cellparams': {
                 'tau_m'      : 20.0,             # ms
@@ -60,35 +60,40 @@ params = {
             'source' : 'ext',
             'target' : 'py',
             'connector' : FixedProbabilityConnector(.02),
-            'synapse_type' : StaticSynapse(weight=6e-3),
+            'synapse_type' : StaticSynapse,
+            'weight' : 6e-3,
             'receptor_type' : 'excitatory'
         },
         'py_py' : {
             'source' : 'py',
             'target' : 'py',
             'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=6e-3),
+            'synapse_type' : StaticSynapse,
+            'weight' : 6e-3,
             'receptor_type' : 'excitatory'
         },
         'py_inh' : {
             'source' : 'py',
             'target' : 'inh',
             'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=6e-3),
+            'synapse_type' : StaticSynapse,
+            'weight' : 6e-3,
             'receptor_type' : 'excitatory'
         },
         'inh_py' : {
             'source' : 'inh',
             'target' : 'py',
             'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=67e-3),
+            'synapse_type' : StaticSynapse,
+            'weight' : 67e-3,
             'receptor_type' : 'inhibitory'
         },
         'inh_inh' : {
             'source' : 'inh',
             'target' : 'inh',
             'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=67e-3),
+            'synapse_type' : StaticSynapse,
+            'weight' : 67e-3,
             'receptor_type' : 'inhibitory'
         }
     },
