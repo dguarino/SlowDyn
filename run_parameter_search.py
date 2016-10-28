@@ -62,20 +62,23 @@ for i,comb in enumerate(combinations):
         #print "after:", getValue(external.params, keys)
 
     Populations = h.build_network(external.params)
+    print Populations
     #print 'dopo fuori:',getattr(Populations['py'][7], 'a')
 
     h.record_data(external.params, Populations)
 
     h.run_simulation(external.params)
+    
 
     h.save_data(Populations,addon=str(comb))
-
-    end()
     
     score_local = h.analyse(Populations,str(comb))
     score[str(comb)] = score_local
     
-    target = open('score.txt', 'a')
-    target.write(str(score.iteritems()))
 
+    end()
 
+max = np.max(score.values())
+print score.keys()[score.values().index(max)]
+target = open('score.txt', 'a')
+target.write(str(score))

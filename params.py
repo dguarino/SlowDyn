@@ -4,7 +4,7 @@ from pyNN.utility import Timer
 params = {
 
     'DistanceDep': True,
-    'run_time': 2000, # ms
+    'run_time': 5000, # ms
     'dt': 0.1, # ms
 
     'Populations' : {

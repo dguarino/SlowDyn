@@ -1,7 +1,7 @@
 params = {
-    'Populations.py.n' : [400, 800],
-    'Populations.inh.n' : [100, 200],
-    'Populations.py.cellparams.b': [ 0.01,0.02, 0.005,0.001],
+    'Populations.py.n' : [400],
+    'Populations.inh.n' : [100],
+    'Populations.py.cellparams.b': [ 0.01,0.02, 0.005],
 }
 
 # We want to be able, in run_parameter_search.py, to iterate over

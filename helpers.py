@@ -69,10 +69,12 @@ def run_simulation(Params):
 
 
 def save_data(Populations,addon=''):
+    print "saving data"
     for key,p in Populations.iteritems():
         if key != 'ext':
             data = p.get_data()
             p.write_data('results/'+key+addon+'.pkl', annotations={'script_name': __file__})
+
 
 
 def plot_spiketrains(segment):
@@ -107,15 +109,17 @@ def load_spikelist( filename, t_start=.0, t_stop=1. ):
 
 
 def analyse(Populations,filename):
-
+    print "analysing data"
     pop_number = len(Populations) - 1
     pop_index = 0
+    score = {}
     for key,p in Populations.iteritems():
+        print key
         if key != 'ext':
             pop_index = pop_index + 1
+            print pop_number,pop_index
             neo = pickle.load( open('results/'+key+filename+'.pkl', "rb") )
             data = neo.segments[0]
-
             vm = data.filter(name = 'v')[0]
             gsyn_exc = data.filter(name="gsyn_exc")
             gsyn_inh = data.filter(name="gsyn_inh")
@@ -123,20 +127,6 @@ def analyse(Populations,filename):
                 gsyn = gsyn_inh[0]
             else:
                 gsyn = gsyn_exc[0]
-
-           # all on same plot
-           # fig = plot.figure(1)
-           # plot.subplot(pop_number*3,1,1+3*(pop_index-1))
-           # plot.plot(vm)
-           # plot.ylabel("Membrane potential (mV)")
-           # plot.subplot(pop_number*3,1,2+3*(pop_index-1))
-           # plot.plot(gsyn)
-           # plot.ylabel("Synaptic conductance (uS)")
-           # plot.subplot(pop_number*3,1,3+3*(pop_index-1))
-           # plot_spiketrains(data)
-           # plot.xlabel("Time (ms)")
-           # plot.setp(plot.gca().get_xticklabels(), visible=True)
-           # fig.savefig(filename+".png")
 
             Figure(
                 Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,legend = None),
@@ -152,15 +142,16 @@ def analyse(Populations,filename):
             
             # metric supposed to characterize bimodality
             bins = bins[:-1]
-            prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm))])/sum(n)
-            prop_right = sum([n[i] for i,data in enumerate(bins) if bins[i]>(np.mean(vm)+np.std(vm))])/sum(n)
-            score = prop_left*prop_right
+            prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm)/2)])/sum(n)
+            prop_right = sum([n[i] for i,data in enumerate(bins) if bins[i]>(np.mean(vm)+np.std(vm)/2)])/sum(n)
+            score[key] = float("{0:.2f}".format(prop_left*prop_right))
+            print "prop_left",prop_left, "prop_right",prop_right
             print "score",prop_left*prop_right
 
             if pop_index == pop_number :
                 fig.clear()
 
-            return score
+    return score
                 
                 
             
