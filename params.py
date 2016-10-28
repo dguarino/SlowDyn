@@ -4,7 +4,7 @@ from pyNN.utility import Timer
 params = {
 
     'DistanceDep': True,
-    'run_time': 10000, # ms
+    'run_time': 7000, # ms
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -101,10 +101,10 @@ params = {
     'Recorders' : {
         'py' : {
             'spikes' :  'all',
-            'gsyn_exc' : {
-                'start' :200,
-                'end' : 210,
-            },
+            #'gsyn_exc' : {
+            #    'start' :200,
+            #    'end' : 210,
+           # },
             'v' : {
                 'start' :200,
                 'end' : 210,
@@ -115,10 +115,10 @@ params = {
                 'start' : 0,
                 'end' : 1000,
             },
-            'gsyn_inh' :{
-                'start' : 0,
-                'end' : 10,
-            },
+            #'gsyn_inh' :{
+            #    'start' : 0,
+            #    'end' : 10,
+           # },
             'v' : {
                 'start' : 0,
                 'end' : 10,

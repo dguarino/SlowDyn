@@ -137,7 +137,7 @@ def analyse(Populations,filename):
                         
             Figure(
                 Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,legend = None),
-                Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),
+               # Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),
                 Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True)
              ).save('results/'+key+'-'+filename+".png")
 
