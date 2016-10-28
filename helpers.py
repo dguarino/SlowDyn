@@ -128,8 +128,8 @@ def analyse(Populations,filename):
             neo = pickle.load( open('results/'+key+filename+'.pkl', "rb") )
             data = neo.segments[0]
             vm = data.filter(name = 'v')[0]
-            gsyn_exc = data.filter(name="gsyn_exc")
-            gsyn_inh = data.filter(name="gsyn_inh")
+            #gsyn_exc = data.filter(name="gsyn_exc")
+            #gsyn_inh = data.filter(name="gsyn_inh")
             #if not gsyn_exc:
             #    gsyn = gsyn_inh[0]
             #else:
