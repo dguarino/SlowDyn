@@ -128,17 +128,17 @@ def analyse(Populations,filename):
             neo = pickle.load( open('results/'+key+filename+'.pkl', "rb") )
             data = neo.segments[0]
             vm = data.filter(name = 'v')[0]
-            gsyn_exc = data.filter(name="gsyn_exc")
-            gsyn_inh = data.filter(name="gsyn_inh")
-            if not gsyn_exc:
-                gsyn = gsyn_inh[0]
-            else:
-                gsyn = gsyn_exc[0]
+           # gsyn_exc = data.filter(name="gsyn_exc")
+           # gsyn_inh = data.filter(name="gsyn_inh")
+           # if not gsyn_exc:
+            #    gsyn = gsyn_inh[0]
+           # else:
+            #    gsyn = gsyn_exc[0]
                         
             Figure(
-                Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,legend = None),
+                Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,yticks = True,legend = None),
                # Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),
-                Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True)
+                Panel(rd.sample(data.spiketrains,50), xlabel="Time (ms)", xticks=True)
              ).save('results/'+key+'-'+filename+".png")
 
 
