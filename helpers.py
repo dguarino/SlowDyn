@@ -8,6 +8,7 @@ from pyNN.utility import Timer
 import pickle
 from pyNN.utility.plotting import Figure, Panel
 import matplotlib.pyplot as plot
+from datetime import datetime
 
 
 def build_network(Params):
@@ -120,6 +121,8 @@ def analyse(Populations,filename):
     pop_number = len(Populations) - 1
     pop_index = 0
     score = {}
+    dt = datetime.now()
+    date = dt.strftime("%d-%m-%I-%M")
     for key,p in Populations.iteritems():
         print key
         if key != 'ext':
@@ -138,16 +141,17 @@ def analyse(Populations,filename):
                         
             Figure(
                 Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,yticks = True,legend = None),
-               # Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),
-                Panel(rd.sample(data.spiketrains,50), xlabel="Time (ms)", xticks=True)
-             ).save('results/'+key+'-'+filename+".png")
+                # Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),        
+               # Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
+                Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize = 1)
+             ).save('results/'+date+'/'+key+'-'+filename+".png")
 
 
             fig = plot.figure(2)
-
             plot.subplot(pop_number,1,pop_index)
+            ylabel = key
             n,bins,patches = plot.hist(np.mean(vm,1),50)
-            fig.savefig('results/'+filename+'hist.png')
+            fig.savefig('results/'+date+'/'+filename+'hist.png')
             
             # metric supposed to characterize bimodality
             bins = bins[:-1]
@@ -159,6 +163,8 @@ def analyse(Populations,filename):
 
             if pop_index == pop_number :
                 fig.clear()
+            
+            #TODO ; add parameter file to the result folder
 
     return score
                 

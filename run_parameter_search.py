@@ -22,7 +22,7 @@ def getValue(dic, keys):
 
 usage_str = 'usage: run.py -p <param file> -s <search file>'
 try:
-      opts, args = getopt.getopt(sys.argv[1:], "hp:s:" )
+    opts, args = getopt.getopt(sys.argv[1:], "hp:s:" )
 except getopt.GetoptError:
     print usage_str,"error"
     sys.exit(2)
