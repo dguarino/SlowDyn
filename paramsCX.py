@@ -24,15 +24,15 @@ params = {
                 'tau_m'      : 20.0,             # ms
                 'tau_syn_E'  : 5.0,
                 'tau_syn_I'  : 10.0,
-                'tau_refrac' : 2.5,
+                'tau_refrac' : 5., #2.5,
                 'v_rest'     : -60.0,
                 'v_reset'    : -60.0,
                 'v_thresh'   : -50.0,
                 'delta_T'    : 2.5, #0.8 Naud et al.2008
                 'tau_w'      : 600.0,
                 'cm'         : 0.200,
-                'a'          : 0.001,#0.8e-3 Naud et al. 2008
-                'b'          : .02 #0.065 Naud et al. 2008
+                'a'          : 0.008,#0.8e-3 Naud et al. 2008
+                'b'          : .065 #0.065 Naud et al. 2008
             }
         },
         'inh' : {
@@ -42,15 +42,15 @@ params = {
                 'tau_m'      : 20.0,             # ms
                 'tau_syn_E'  : 5.0,
                 'tau_syn_I'  : 10.0,
-                'tau_refrac' : 2.5,
+                'tau_refrac' : 5.,#2.5,
                 'v_rest'     : -60.0,
                 'v_reset'    : -60.0,
                 'v_thresh'   : -50.0,
                 'delta_T'    : 2.5,
                 'tau_w'      : 600.0,
                 'cm'         : 0.200,#uS
-                'a'          : 0.03,#uS
-                'b'          : 0.08 #nA
+                'a'          : 0.001,#uS
+                'b'          : 0.0 #nA
             }
         }
 
@@ -133,16 +133,7 @@ params = {
     },
 
     'Modifiers' :{
-        'py' : {
-        'cells' : {
-               'start' : 0,
-               'end' : 0.1
-            },
-            'properties' : {
-                'a' : 0.02, #uS
-                'b' : 0.0
-            }
-        }
+        
     }
 
 }
