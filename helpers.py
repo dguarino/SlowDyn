@@ -31,7 +31,7 @@ def build_network(Params):
             synapse_type = projVal['synapse_type'](weight = projVal['weight']),
             receptor_type = projVal['receptor_type']
         )
-        
+
 
     for key in Populations.keys():
         Populations[key].initialize()
@@ -50,7 +50,7 @@ def build_network(Params):
 
         cells = Populations[modKey].local_cells
         for key,value in modVal['properties'].iteritems():
-            #print list(cells[ start:end ])
+            print list(cells[ start:end ])
             Populations[modKey][ list(cells[ start:end ]) ].set(**{key:value})
 
    # print 'dopo dentro:',getattr(Populations['py'][7], 'a')
@@ -130,19 +130,19 @@ def analyse(Populations,filename):
             print pop_number,pop_index
             neo = pickle.load( open('results/'+key+filename+'.pkl', "rb") )
             data = neo.segments[0]
-            vm = data.filter(name = 'v')[0]
 
+            #vm = data.filter(name = 'v')[0]
             #gsyn_exc = data.filter(name="gsyn_exc")
             #gsyn_inh = data.filter(name="gsyn_inh")
             #if not gsyn_exc:
             #    gsyn = gsyn_inh[0]
             #else:
             #    gsyn = gsyn_exc[0]
-                        
+
             Figure(
-                Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,yticks = True,legend = None),
-                # Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),        
-               # Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
+                #Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,yticks = True,legend = None),
+                #Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),
+                #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
                 Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize = 1)
              ).save('results/'+date+'/'+key+'-'+filename+".png")
 
@@ -152,7 +152,7 @@ def analyse(Populations,filename):
             ylabel = key
             n,bins,patches = plot.hist(np.mean(vm,1),50)
             fig.savefig('results/'+date+'/'+filename+'hist.png')
-            
+
             # metric supposed to characterize bimodality
             bins = bins[:-1]
             prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm)/2)])/sum(n)
@@ -163,10 +163,7 @@ def analyse(Populations,filename):
 
             if pop_index == pop_number :
                 fig.clear()
-            
+
             #TODO ; add parameter file to the result folder
 
     return score
-                
-                
-            
