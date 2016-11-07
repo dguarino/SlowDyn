@@ -52,8 +52,9 @@ class SetInput(object):
                 sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
                 lfp = (1/(4*numpy.pi*sigma)) * numpy.sum( avg_i_by_t )
                 # a very large LFP would give us a signal comparable to eeg
-                # https://www.quora.com/Neuroscience-What-is-difference-between-local-field-potential-and-EEG
-                # Musall et al 2012
+                # - https://www.quora.com/Neuroscience-What-is-difference-between-local-field-potential-and-EEG
+                # - Musall et al 2012
+                # - Bartosz (personal communication)
                 print lfp
             # LFP into rythm_func
             spike_times = self.rythm(t,lfp)
