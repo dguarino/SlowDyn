@@ -36,8 +36,6 @@ def build_network(Params):
     for key in Populations.keys():
         Populations[key].initialize()
 
-   # print 'prima dentro:',Populations['py'][7].a
-
     for modKey,modVal in Params['Modifiers'].iteritems():
         if type(modVal['cells']['start']) == float:
             start = int(modVal['cells']['start'] * Populations[modKey].local_size)
@@ -51,9 +49,7 @@ def build_network(Params):
         cells = Populations[modKey].local_cells
         for key,value in modVal['properties'].iteritems():
             print list(cells[ start:end ])
-            Populations[modKey][ list(cells[ start:end ]) ].set(**{key:value})
-
-   # print 'dopo dentro:',getattr(Populations['py'][7], 'a')
+            Populations[modKey][ Populations[modKey].id_to_index(list(cells[ start:end ])) ].set(**{key:value})
 
     return Populations
 
