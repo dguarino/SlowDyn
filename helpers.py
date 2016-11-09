@@ -48,7 +48,6 @@ def build_network(Params):
 
         cells = Populations[modKey].local_cells
         for key,value in modVal['properties'].iteritems():
-            print list(cells[ start:end ])
             Populations[modKey][ Populations[modKey].id_to_index(list(cells[ start:end ])) ].set(**{key:value})
 
     return Populations
@@ -123,11 +122,10 @@ def analyse(Populations,filename):
         print key
         if key != 'ext':
             pop_index = pop_index + 1
-            print pop_number,pop_index
             neo = pickle.load( open('results/'+key+filename+'.pkl', "rb") )
             data = neo.segments[0]
 
-            #vm = data.filter(name = 'v')[0]
+            vm = data.filter(name = 'v')[0]
             #gsyn_exc = data.filter(name="gsyn_exc")
             #gsyn_inh = data.filter(name="gsyn_inh")
             #if not gsyn_exc:

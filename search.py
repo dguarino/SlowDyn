@@ -3,8 +3,8 @@ params = {
     'run_time' : [5000],
     'Populations.py.n' : [1600],
     #'Modifiers.py.cells.end' : [0.12,0.13,0.14],
-    'Modifiers.py.properties.a' : [0.01, 0.03],
-    'Populations.py.cellparams.b': [0.04]#,0.02,0.01, 0.005],
+   # 'Modifiers.py.properties.a' : [0.01, 0.03],
+   # 'Populations.py.cellparams.b': [0.04]#,0.02,0.01, 0.005],
 
 }
 
