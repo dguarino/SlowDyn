@@ -124,40 +124,66 @@ def analyse(Populations,filename):
             pop_index = pop_index + 1
             neo = pickle.load( open('results/'+key+filename+'.pkl', "rb") )
             data = neo.segments[0]
-
-            vm = data.filter(name = 'v')[0]
+            if key == 'py':
+                lfp = compute_LFP(data)
+                lfp = lfp.reshape((50001,1))
+                print lfp.shape
+                vm = data.filter(name = 'v')[0]
+                print vm.shape
+                fig = plot.figure(1)
+                plot.plot(lfp)
+                fig.savefig('lfp.png')
             #gsyn_exc = data.filter(name="gsyn_exc")
             #gsyn_inh = data.filter(name="gsyn_inh")
             #if not gsyn_exc:
             #    gsyn = gsyn_inh[0]
             #else:
             #    gsyn = gsyn_exc[0]
+            
+                #Figure(
+                    #Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,yticks = True,legend = None),
+                    #Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),
+                    #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
+                    #Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize = 1),
+                    #Panel(lfp)
+                    #).save('results/'+date+'/'+key+'-'+filename+".png")
 
-            Figure(
-                #Panel(vm, ylabel="Membrane potential (mV)",xlabel="Time (ms)", xticks=True,yticks = True,legend = None),
-                #Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None),
-                #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
-                Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize = 1)
-             ).save('results/'+date+'/'+key+'-'+filename+".png")
-
-
-            fig = plot.figure(2)
-            plot.subplot(pop_number,1,pop_index)
-            ylabel = key
-            n,bins,patches = plot.hist(np.mean(vm,1),50)
-            fig.savefig('results/'+date+'/'+filename+'hist.png')
+                   
+            #fig = plot.figure(2)
+            #plot.subplot(pop_number,1,pop_index)
+            #ylabel = key
+            #n,bins,patches = plot.hist(np.mean(vm,1),50)
+            #fig.savefig('results/'+date+'/'+filename+'hist.png')
 
             # metric supposed to characterize bimodality
-            bins = bins[:-1]
-            prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm)/2)])/sum(n)
-            prop_right = sum([n[i] for i,data in enumerate(bins) if bins[i]>(np.mean(vm)+np.std(vm)/2)])/sum(n)
-            score[key] = float("{0:.2f}".format(prop_left*prop_right))
-            print "prop_left",prop_left, "prop_right",prop_right
-            print "score",prop_left*prop_right
+            #bins = bins[:-1]
+            #prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm)/2)])/sum(n)
+            #prop_right = sum([n[i] for i,data in enumerate(bins) if bins[i]>(np.mean(vm)+np.std(vm)/2)])/sum(n)
+            #score[key] = float("{0:.2f}".format(prop_left*prop_right))
+            #print "prop_left",prop_left, "prop_right",prop_right
+            #print "score",prop_left*prop_right
 
-            if pop_index == pop_number :
-                fig.clear()
+            #if pop_index == pop_number :
+            #    fig.clear()
 
             #TODO ; add parameter file to the result folder
 
     return score
+
+
+def compute_LFP(data):
+      v = data.filter(name="v")[0]
+      g = data.filter(name="gsyn_exc")[0]
+      # We produce the current for each cell for this time interval, with the Ohm law:
+      # I = g(V-E), where E is the equilibrium for exc, which usually is 0.0 (we can change it)
+      # (and we also have to consider inhibitory condictances)
+      print 'v', v
+      i = g*(v) #AMPA
+      print 'i',i
+      # the LFP is the result of cells' currents
+      avg_i_by_t = numpy.sum(i,axis=1)/i.shape[0] #
+      print 'avg',len(avg_i_by_t)
+      sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
+      lfp = (1/(4*numpy.pi*sigma)) *  avg_i_by_t
+      return lfp
+            
