@@ -32,7 +32,7 @@ params = {
                 'tau_w'      : 600.0,#D
                 'cm'         : 0.200,#nF D = Cm/cm2 * Surface
                 'a'          : 0.001,#0.8e-3 Naud et al. 2008
-                'b'          : .1 #.03 #0.065 Naud et al. 2008
+                'b'          : .03 #0.065 Naud et al. 2008
             }
         },
         'inh' : {
