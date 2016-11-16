@@ -1,5 +1,5 @@
 import NeuroTools.signals
-import numpy.random
+import numpy as np
 import os
 from pyNN.nest import *
 from numpy import *
@@ -23,7 +23,18 @@ class SetInput(object):
 
     def rythm(self, t, eeg):
         # use the eeg interval (N ms) to compute the input
-        spike_times = [t+1, t+3, t+4] # result of the rythm_func
+
+        ## Proposta di struttura 
+        threshold = somevalue
+        #is the threshold crossed ?
+        threshold_crossing =  (eeg - threshold)[1:]* (eeg - threshold)[0:-1]  < 0
+        #stimulate if threshold crossing is positive
+        for index in range(1:len(threshold_crossing)-1):
+            if threshold_crossing[index] && (eeg[index] - eeg[index-1])>0:
+                stim = true
+                spike_times = [index+1]#, t+3, t+4] # result of the rythm_func
+            else: 
+                spike_times = 0
         return spike_times
 
     def __call__(self, t):
@@ -50,7 +61,7 @@ class SetInput(object):
                 #print avg_i_by_t.shape
                 #print avg_i_by_t
                 sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
-                lfp = (1/(4*numpy.pi*sigma)) * numpy.sum( avg_i_by_t )
+                lfp = (1/(4*numpy.pi*sigma)) * avg_i_by_t 
                 # a very large LFP would give us a signal comparable to eeg
                 # - https://www.quora.com/Neuroscience-What-is-difference-between-local-field-potential-and-EEG
                 # - Musall et al 2012

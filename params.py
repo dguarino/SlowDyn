@@ -6,6 +6,8 @@ params = {
     'DistanceDep': True,
     'run_time': 1000, # ms
     'dt': 0.1, # ms
+    'Injections' : {
+    },
 
     'Populations' : {
         'ext' : {
@@ -133,19 +135,19 @@ params = {
     },
 
     'Modifiers' :{
-       # 'py' : {
-       # 'cells' : {
-       #        'start' : 0,
-       #        'end' : 0.1
-       #     },
-       #     'properties' : {
-       #         'tau_w' : 150.,
-       #         'cm' : 0.15,
-       #         'tau_m' : 30.0, #
-       #         'a' : 12., #Alain 0.02, #uS
-       #         'b' : .03 #0.0
-       #     }
-       # }
+        'py' : {
+        'cells' : {
+               'start' : 0,
+               'end' : 0.1
+            },
+            'properties' : {
+                'tau_w' : 150.,
+                'cm' : 0.15,
+                'tau_m' : 30.0, #
+                'a' : 12., #Alain 0.02, #uS
+                'b' : .03 #0.0
+            }
+        }
     }
 
 }

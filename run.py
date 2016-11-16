@@ -1,18 +1,36 @@
 import NeuroTools.signals
 import numpy.random
 import os
+import shutil
 from pyNN.nest import *
 from numpy import *
 import matplotlib.pyplot as plot
 from pyNN.utility import Timer
 import sys, getopt
+import itertools as it
 
 import helpers as h
 
-usage_str = 'usage: run.py -p <param file> -s <search file>'
+
+# ADDITIONAL FUNCTIONS ---------------------------------------------------------
+def replace(dic, keys,value):
+    getValue(dic,keys[:-1])[keys[-1]]=value
+
+def getValue(dic, keys):
+    return reduce(lambda d, k: d[k], keys, dic)
+
+
+
+# ------------------------------------------------------------------------------
+usage_str = 'usage: run.py [-a] [-r] -p<param file> -f<data folder> [-s<search file>]'
+doAnalaysisOnly = False
+doParameterSearch = False
+removeDataFile = False
+data_folder = 'results'
+params_filename = ''
 
 try:
-      opts, args = getopt.getopt(sys.argv[1:], "hp:s:" )
+    opts, args = getopt.getopt(sys.argv[1:], "harf:p:s:" )
 except getopt.GetoptError:
     print usage_str,"error"
     sys.exit(2)
@@ -22,23 +40,61 @@ for opt, arg in opts:
     if opt == '-h':
         print usage_str
         sys.exit()
+    elif opt == '-a':
+        print "Running analysis and plotting only ..."
+        doAnalaysisOnly=True
+    elif opt == '-r':
+        print "Removing data files after analysis ..."
+        removeDataFile=True
+    elif opt == '-f':
+        data_folder = arg
+        print "Data will be saved in:", data_folder
     elif opt == '-p':
-        print arg
+        print "Using parameter file:", arg
         external = __import__(arg)
+        params_filename = arg
     elif opt == '-s':
-        print arg
+        print "Executing parameter search using file:", arg
         search = __import__(arg)
+        doParameterSearch = True
+
+if params_filename=='':
+    print usage_str,"error"
+    sys.exit(2)
 
 
-Populations = h.build_network(external.params)
+combinations = [{'default':''}] # init
+if doParameterSearch:
+    # create parameter combinations
+    testParams = sorted(search.params) # give an order to dict (by default unordered)
+    # create an array of dictionaries:
+    # each dict being the joining of one of the testKey and a value testVal
+    # each testVal is produced by internal product of all array in testParams
+    combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search.params[testKey] for testKey in testParams))]
+    print len(combinations),combinations # to be commented
 
-h.record_data(external.params, Populations)
 
-h.run_simulation(external.params)
+# run combinations
+for i,comb in enumerate(combinations):
+    print "param combination",i
+    print "current set:",comb
 
-h.save_data(Populations)
+    # replacement
+    for ckey,val in comb.iteritems():
+        keys = ckey.split('.') # get list from dotted string
+        replace(external.params,keys,val)
 
+    # save parameters in the data_folder
+    if not os.path.exists(data_folder):
+        os.makedirs(data_folder)
+    shutil.copy('./'+params_filename+'.py', data_folder+'/'+params_filename+'_'+str(comb)+'.py')
 
-end()
+    if not doAnalaysisOnly:
+        Populations = h.build_network(external.params)
+        h.record_data(external.params, Populations)
+        h.perform_injections(external.params, Populations)
+        h.run_simulation(external.params)
+        h.save_data(Populations, data_folder, str(comb))
+        end()
 
-h.analyse(Populations,'')
+    h.analyse(external.params, data_folder, str(comb), removeDataFile)
