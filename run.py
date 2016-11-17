@@ -97,4 +97,5 @@ for i,comb in enumerate(combinations):
         h.save_data(Populations, data_folder, str(comb))
         end()
 
-    h.analyse(external.params, data_folder, str(comb), removeDataFile)
+    else:
+        h.analyse(external.params, data_folder, str(comb), removeDataFile)

@@ -1,11 +1,11 @@
 
 params = {
-    'run_time' : [5000],
+    'run_time' : [1000],
     'Populations.py.n' : [1600],
     #'Modifiers.py.cells.end' : [0.12,0.13,0.14],
-   # 'Modifiers.py.properties.a' : [0.01, 0.03],
-    'Populations.py.cellparams.b': [0.07,0.06,0.05,0.04,0.03,0.02,0.01, 0.005,0.001],
-    'Populations.py.cellparams.a':[0.003,0.002,0.001,0.0005,0.0001]
+   # 'Modifiers.py.properties.a' : ,
+    'Populations.py.cellparams.b': [0.07,0.06],#,0.05,0.04,0.03,0.02,0.01, 0.005,0.001],
+    'Populations.py.cellparams.a':[0.003],#,0.002,0.001,0.0005,0.0001]
 
 }
 
