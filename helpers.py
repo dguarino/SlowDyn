@@ -131,13 +131,19 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         if 'spikes' in rec:
             #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
             panels.append( Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize=1) )
+            # firing rate
+            fr = rate(params, data.spiketrains, bin_size=10)
+            fig = plot.figure()
+            plot.plot(fr)
+            fig.savefig(folder+'/firingrate_'+key+addon+'.png')
+            fig.clear()
 
         Figure( *panels ).save(folder+'/'+key+addon+".png")
 
         # LFP
         if 'v' in rec and 'gsyn_exc' in rec:
             lfp = compute_LFP(data)
-            lfp = lfp.reshape((50001,1))
+            lfp = lfp.reshape((params['run_time']/params['dt']+1.,1))
             print "lfp",lfp.shape
             vm = data.filter(name = 'v')[0]
             fft_lfp = fft(lfp)
@@ -188,7 +194,7 @@ def compute_LFP(data):
       sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
       lfp = (1/(4*numpy.pi*sigma)) *  avg_i_by_t
       return lfp
-            
+
 
 
 def plot_spiketrains(segment):
@@ -220,3 +226,21 @@ def load_spikelist( filename, t_start=.0, t_stop=1. ):
 
     spklist = SpikeList(spiketrains, range(len(neo_spikes)), t_start=t_start, t_stop=t_stop)
     return spklist
+
+
+
+
+def rate( params, spiketrains, bin_size=10 ):
+    """
+    Binned-time Firing firing rate
+    """
+    if spiketrains == [] :
+        return NaN
+    # create bin edges based on number of times and bin size
+    bin_edges = np.arange( 0, params['run_time'], bin_size )
+    #print "bin_edges",bin_edges.shape
+    # binning absolute time, and counting the number of spike times in each bin
+    hist = np.zeros( bin_edges.shape[0]-1 )
+    for spike_times in spiketrains:
+        hist = hist + np.histogram( spike_times, bin_edges )[0]
+    return hist / len(spiketrains)
