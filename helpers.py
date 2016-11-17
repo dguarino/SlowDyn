@@ -2,7 +2,7 @@ import NeuroTools.signals
 import numpy as np
 import random as rd
 import os
-from numpy import *
+from scipy.fftpack import fft
 from pyNN.nest import *
 from pyNN.utility import Timer
 import pickle
@@ -138,11 +138,25 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         if 'v' in rec and 'gsyn_exc' in rec:
             lfp = compute_LFP(data)
             lfp = lfp.reshape((50001,1))
-            #print lfp.shape
+            print "lfp",lfp.shape
             vm = data.filter(name = 'v')[0]
-            #print vm.shape
-            fig = plot.figure()
+            fft_lfp = fft(lfp)
+
+            N = lfp.shape[0]
+            T = 0.1
+            x = np.linspace(0.0, N*T, N)
+            y = np.sin(50.0 * 2.0*np.pi*x) + 0.5*np.sin(80.0 * 2.0*np.pi*x)
+            print "y",y.shape
+            yf = fft(y)
+            xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
+            #freq = np.fft.fftfreq(lfp.shape[0])
+            #print fft_lfp.shape,freq.shape
+            fig = plot.figure(2)
+            plot.subplot(2,1,1)
+            #plot.plot(xf, 2.0/N * np.abs(yf[0:N/2]))
             plot.plot(lfp)
+            plot.subplot(2,1,2)
+            plot.plot(xf, 2.0/N * np.abs(fft_lfp[0:N/2]))
             fig.savefig(folder+'/LFP_'+key+addon+'.png')
             fig.clear()
 
@@ -171,7 +185,6 @@ def compute_LFP(data):
       i = g*(v) #AMPA
       # the LFP is the result of cells' currents
       avg_i_by_t = numpy.sum(i,axis=1)/i.shape[0] #
-      print 'avg',len(avg_i_by_t)
       sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
       lfp = (1/(4*numpy.pi*sigma)) *  avg_i_by_t
       return lfp

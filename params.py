@@ -4,7 +4,7 @@ from pyNN.utility import Timer
 params = {
 
     'DistanceDep': True,
-    'run_time': 1000, # ms
+    'run_time': 5000, # ms
     'dt': 0.1, # ms
     'Injections' : {
     },
@@ -20,7 +20,7 @@ params = {
             }
         },
        'py' : {
-            'n': 800, # units
+            'n': 1600, # units
             'type': EIF_cond_alpha_isfa_ista,
             'cellparams': {
                 'tau_m'      : 20.0,             # ms
@@ -34,7 +34,7 @@ params = {
                 'tau_w'      : 600.0,
                 'cm'         : 0.200,
                 'a'          : 0.001,#0.8e-3 Naud et al. 2008
-                'b'          : 0.03 #0.1 RS
+                'b'          : 0.1 #RS #0.03
             }
         },
         'inh' : {
@@ -107,10 +107,10 @@ params = {
     'Recorders' : {
         'py' : {
             'spikes' :  'all',
-            #'gsyn_exc' : {
-            #    'start' :200,
-            #    'end' : 210,
-           # },
+            'gsyn_exc' : {
+                'start' :200,
+                'end' : 210,
+            },
             'v' : {
                 'start' :200,
                 'end' : 210,

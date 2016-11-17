@@ -6,6 +6,8 @@ params = {
     'DistanceDep': True,
     'run_time': 5000, # ms
     'dt': 0.1, # ms
+    'Injections' : {
+    },
 
     'Populations' : {
         'ext' : {
