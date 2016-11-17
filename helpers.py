@@ -2,7 +2,9 @@ import NeuroTools.signals
 import numpy as np
 import random as rd
 import os
+import scipy.io
 from scipy.fftpack import fft
+from scipy import signal
 from pyNN.nest import *
 from pyNN.utility import Timer
 import pickle
@@ -137,26 +139,26 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         # LFP
         if 'v' in rec and 'gsyn_exc' in rec:
             lfp = compute_LFP(data)
-            lfp = lfp.reshape((50001,1))
-            print "lfp",lfp.shape
+            lfp = lfp.reshape((params['run_time']/params['dt']+1.,1))
+            v_auxG = 2*lfp[1]-lfp[::-1];
+            v_auxR = 2*lfp[-1]-lfp[::-1];
+            b,a = signal.iirfilter(2,[0.1*2*params['dt']**2/1000,10*2*params['dt']**2/1000])
+            filt_lfp = signal.filtfilt(b, a, np.concatenate((v_auxG,lfp,v_auxR)),axis=0)
+            print "lfp",lfp.shape,"filt_lfp",filt_lfp.shape
             vm = data.filter(name = 'v')[0]
-            fft_lfp = fft(lfp)
 
             N = lfp.shape[0]
-            T = 0.1
-            x = np.linspace(0.0, N*T, N)
-            y = np.sin(50.0 * 2.0*np.pi*x) + 0.5*np.sin(80.0 * 2.0*np.pi*x)
-            print "y",y.shape
-            yf = fft(y)
-            xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
-            #freq = np.fft.fftfreq(lfp.shape[0])
-            #print fft_lfp.shape,freq.shape
+            T = params['dt']
+            fft_lfp = np.fft.fft(lfp)
+            freq = np.fft.fftfreq(lfp.shape[0],params['dt'])
+            #xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
             fig = plot.figure(2)
             plot.subplot(2,1,1)
-            #plot.plot(xf, 2.0/N * np.abs(yf[0:N/2]))
             plot.plot(lfp)
             plot.subplot(2,1,2)
-            plot.plot(xf, 2.0/N * np.abs(fft_lfp[0:N/2]))
+            #plot.plot(filt_lfp[len(filt_lfp)//3:2*len(filt_lfp)//3])
+            #plot.plot(xf, 2.0/N * np.abs(fft_lfp[0:N//2]))
+            plot.plot(freq,fft_lfp)
             fig.savefig(folder+'/LFP_'+key+addon+'.png')
             fig.clear()
 
