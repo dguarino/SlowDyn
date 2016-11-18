@@ -4,14 +4,13 @@ import numpy as np
 import random as rd
 import os
 import scipy.io
-from scipy import fftpack
-from scipy import signal
 from pyNN.nest import *
 from pyNN.utility import Timer
 import pickle
 from pyNN.utility.plotting import Figure, Panel
 import matplotlib.pyplot as plot
 from datetime import datetime
+from matplotlib import mlab
 
 
 def build_network(Params):
@@ -155,22 +154,22 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         # LFP
         if 'v' in rec and 'gsyn_exc' in rec:
             lfp = compute_LFP(data)
-            lfp = lfp.reshape((params['run_time']/params['dt']+1.,1))
-            vm = data.filter(name = 'v')[0]
-
             fe = 1/params['dt']*1000
-            T = params['run_time']/1000
-            N = T*fe+1
+            spectrum,freq,t = mlab.specgram(lfp, NFFT=len(lfp),Fs = fe )
+            #  remove first 2 values because of artefact and find frequency that has the highest amplitude
+            cut = 2
+            argm = np.argmax(abs(spectrum)[cut:])
+            value = freq[cut+argm]
+            N = len(lfp)
             t = np.arange(0.,N)/fe
-            fourier = fftpack.fft(lfp)/np.size(lfp)
-            freq = np.arange(0.,N)*fe/N
-            #print "freq",freq.size,"fourier",fourier.size
-            fqcy = 0
+
+            fqcy = value
+            
             fig = plot.figure(2)
             plot.subplot(2,1,1)
             plot.plot(t,lfp)
             plot.subplot(2,1,2)
-            plot.plot(freq,np.abs(fourier))
+            plot.plot(freq[cut:30],np.abs(spectrum)[cut:30])
             fig.savefig(folder+'/LFP_'+key+addon+'.png')
             fig.clear()
 
