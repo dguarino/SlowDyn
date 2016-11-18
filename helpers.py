@@ -1,9 +1,10 @@
+from __future__ import division
 import NeuroTools.signals
 import numpy as np
 import random as rd
 import os
 import scipy.io
-from scipy.fftpack import fft
+from scipy import fftpack
 from scipy import signal
 from pyNN.nest import *
 from pyNN.utility import Timer
@@ -135,10 +136,19 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             panels.append( Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize=1) )
             # firing rate
             fr = rate(params, data.spiketrains, bin_size=10)
-            fig = plot.figure()
+            if key == 'py':
+                threshold = np.max(fr)/2
+                normfr = fr - threshold
+                uptime = len([val for val in normfr if val >0])
+                downtime = len([val for val in normfr if val < 0])
+                ratio = uptime/downtime        
+                #print 'ratio', ratio
+            fig = plot.figure(56)
             plot.plot(fr)
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
+
+          
 
         Figure( *panels ).save(folder+'/'+key+addon+".png")
 
@@ -146,25 +156,21 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         if 'v' in rec and 'gsyn_exc' in rec:
             lfp = compute_LFP(data)
             lfp = lfp.reshape((params['run_time']/params['dt']+1.,1))
-            v_auxG = 2*lfp[1]-lfp[::-1];
-            v_auxR = 2*lfp[-1]-lfp[::-1];
-            b,a = signal.iirfilter(2,[0.1*2*params['dt']**2/1000,10*2*params['dt']**2/1000])
-            filt_lfp = signal.filtfilt(b, a, np.concatenate((v_auxG,lfp,v_auxR)),axis=0)
-            print "lfp",lfp.shape,"filt_lfp",filt_lfp.shape
             vm = data.filter(name = 'v')[0]
 
-            N = lfp.shape[0]
-            T = params['dt']
-            fft_lfp = np.fft.fft(lfp)
-            freq = np.fft.fftfreq(lfp.shape[0],params['dt'])
-            #xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
+            fe = 1/params['dt']*1000
+            T = params['run_time']/1000
+            N = T*fe+1
+            t = np.arange(0.,N)/fe
+            fourier = fftpack.fft(lfp)/np.size(lfp)
+            freq = np.arange(0.,N)*fe/N
+            #print "freq",freq.size,"fourier",fourier.size
+            fqcy = 0
             fig = plot.figure(2)
             plot.subplot(2,1,1)
-            plot.plot(lfp)
+            plot.plot(t,lfp)
             plot.subplot(2,1,2)
-            #plot.plot(filt_lfp[len(filt_lfp)//3:2*len(filt_lfp)//3])
-            #plot.plot(xf, 2.0/N * np.abs(fft_lfp[0:N//2]))
-            plot.plot(freq,fft_lfp)
+            plot.plot(freq,np.abs(fourier))
             fig.savefig(folder+'/LFP_'+key+addon+'.png')
             fig.clear()
 
@@ -180,7 +186,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         if removeDataFile:
             os.remove(folder+'/'+key+addon+'.pkl')
 
-    return score
+    return ratio,fqcy
 
 
 
