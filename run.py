@@ -75,6 +75,10 @@ if doParameterSearch:
     combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search.params[testKey] for testKey in testParams))]
     #print len(combinations),combinations # to be commented
 
+    with open(data_folder+'/map.csv', 'w') as csvfile:
+        mywriter = csv.writer(csvfile)
+        mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
+        mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
 
 info = []
 print 'info',info
@@ -102,12 +106,6 @@ for i,comb in enumerate(combinations):
         end()
 
     else:
-        if i == 0:
-            with open(data_folder+'/map.csv', 'wb') as csvfile:
-                mywriter = csv.writer(csvfile)
-                mywriter.writerow( ['#row'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
-                mywriter.writerow( ['#column'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
-
         ratio,fqcy = h.analyse(external.params, data_folder, str(comb), removeDataFile)
         info.append([ratio,fqcy])
         if (i+1)%len(search.params[testParams[1]]) == 0:
@@ -117,3 +115,7 @@ for i,comb in enumerate(combinations):
             info = []
 
         #write (fqcy,ratio) to map.csv file in which each row is an "a" value and each column is a "b" value + first 2 lines commented with values of a and b
+
+#if doAnalaysisOnly:
+#    with open(data_folder+'/map.csv', 'a') as csvfile:
+#        h.plot_map(csvfile, factor)
