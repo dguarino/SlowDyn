@@ -44,9 +44,14 @@ def plot_map( csvfile, factor=100 ):
     plot.xticks(p1)
     plot.yticks(p2)
     for x,y,a,c,m in zip(axis1,axis2,area,colors,marks):
-        #print x,y,a,c,m
-        plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none')#, cmap=plot.cm.jet )
-    plot.colorbar(mapper)
+        plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none')
+    cbar = plot.colorbar(mapper)
+    cbar.ax.set_ylabel('largest frequency', rotation=270)
+    #squareArtist = plot.Line2D((0,0),(0,0), color='k', marker='s', linestyle='')
+    #circleArtist = plot.Line2D((0,0),(0,0), color='k', marker='o', linestyle='')
+    #plot.legend([circleArtist,squareArtist],['ratio > 0.5', 'ratio < 0.5'])
+    #plot.legend(loc='upper left', bbox_to_anchor=(1,1))
+    #plot.tight_layout(pad=7)
     plot.savefig('search_map.png')
 
 # using the function...
