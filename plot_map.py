@@ -41,6 +41,8 @@ def plot_map( csvfile, factor=100 ):
     mapper._A = [] # hack to plot the colorbar http://stackoverflow.com/questions/8342549/matplotlib-add-colorbar-to-a-sequence-of-line-plots
     plot.xlabel(text1)
     plot.ylabel(text2)
+    plot.xticks(p1)
+    plot.yticks(p2)
     for x,y,a,c,m in zip(axis1,axis2,area,colors,marks):
         #print x,y,a,c,m
         plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none')#, cmap=plot.cm.jet )
