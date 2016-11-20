@@ -30,7 +30,7 @@ def plot_map( csvfile, factor=100 ):
             # and we raise the ratios below 0.5 with the same amount to bring it towards 1
             # 0.=1, 0.5=0.5, 1.=1
             if size < 0.5:
-                size = size + (0.5-size)
+                size = 0.5+size
                 marks[i] = 's' # but we change their marker to diversify
             area[i] = size * factor
             i=i+1
@@ -44,6 +44,7 @@ def plot_map( csvfile, factor=100 ):
     plot.xticks(p1)
     plot.yticks(p2)
     for x,y,a,c,m in zip(axis1,axis2,area,colors,marks):
+        #print x,y,a,c
         plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none')
     cbar = plot.colorbar(mapper)
     cbar.ax.set_ylabel('largest frequency', rotation=270)
@@ -52,6 +53,7 @@ def plot_map( csvfile, factor=100 ):
     #plot.legend([circleArtist,squareArtist],['ratio > 0.5', 'ratio < 0.5'])
     #plot.legend(loc='upper left', bbox_to_anchor=(1,1))
     #plot.tight_layout(pad=7)
+
     plot.savefig('search_map.png')
 
 # using the function...
