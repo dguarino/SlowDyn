@@ -5,7 +5,7 @@ params = {
 
     'DistanceDep': True,
     'run_time': 5000, # ms
-    'dt': 0.01, # ms
+    'dt': 0.1, # ms
     'Injections' : {
     },
 
@@ -34,7 +34,7 @@ params = {
                 'tau_w'      : 600.0,
                 'cm'         : 0.200,
                 'a'          : 0.001,#0.8e-3 Naud et al. 2008
-                'b'          : 0.1 #RS #0.03
+                'b'          : 0.03
             }
         },
         'inh' : {

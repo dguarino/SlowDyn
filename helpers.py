@@ -183,13 +183,12 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             lfp = compute_LFP(data)
             fe = 1/params['dt']*1000
             spectrum,freq,t = mlab.specgram(lfp, NFFT=len(lfp),Fs = fe )
-            #  remove first 2 values because of artefact and find frequency that has the highest amplitude
+            #     remove first 2 values because of artefact
             cut = 2
             argm = np.argmax(abs(spectrum)[cut:])
             value = freq[cut+argm]
             N = len(lfp)
             t = np.arange(0.,N)/fe
-
             fqcy = value
 
             fig = plot.figure(2)
