@@ -1,3 +1,30 @@
+"""
+Copyright (c) 2016, Domenico GUARINO, Eloise SOULIER
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the <organization> nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL GUARINO AND SOULIER BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+
 import NeuroTools.signals
 import numpy.random
 import os
@@ -75,6 +102,10 @@ if doParameterSearch:
     combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search.params[testKey] for testKey in testParams))]
     #print len(combinations),combinations # to be commented
 
+    with open(data_folder+'/map.csv', 'w') as csvfile:
+        mywriter = csv.writer(csvfile)
+        mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
+        mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
 
 info = []
 print 'info',info
@@ -101,6 +132,7 @@ for i,comb in enumerate(combinations):
         h.save_data(Populations, data_folder, str(comb))
         end()
 
+<<<<<<< HEAD
     #else:
     if i == 0:
         with open(data_folder+'/map.csv', 'wb') as csvfile:
@@ -115,5 +147,19 @@ for i,comb in enumerate(combinations):
             mywriter = csv.writer(csvfile)
             mywriter.writerow(info)
         info = []
+=======
+    else:
+        ratio,fqcy = h.analyse(external.params, data_folder, str(comb), removeDataFile)
+        info.append([ratio,fqcy])
+        if (i+1)%len(search.params[testParams[1]]) == 0:
+            with open(data_folder+'/map.csv', 'a') as csvfile:
+                mywriter = csv.writer(csvfile)
+                mywriter.writerow(info)
+            info = []
+>>>>>>> 8acadbf703312f7d09762ab59f370ff773990b6f
 
         #write (fqcy,ratio) to map.csv file in which each row is an "a" value and each column is a "b" value + first 2 lines commented with values of a and b
+
+#if doAnalaysisOnly:
+#    with open(data_folder+'/map.csv', 'a') as csvfile:
+#        h.plot_map(csvfile, factor)
