@@ -27,10 +27,11 @@ class SetInput(object):
         ## Proposta di struttura 
         threshold = somevalue
         #is the threshold crossed ?
-        threshold_crossing =  (eeg - threshold)[1:]* (eeg - threshold)[0:-1]  < 0
+        signal = eeg - threshold
+        threshold_crossing =  signal[1:]* signal[0:-1]  < 0
         #stimulate if threshold crossing is positive
         for index in range(1:len(threshold_crossing)-1):
-            if threshold_crossing[index] && (eeg[index] - eeg[index-1])>0:
+            if threshold_crossing[index] && (signal[index] - signal[index-1])>0:
                 stim = true
                 spike_times = [index+1]#, t+3, t+4] # result of the rythm_func
             else: 
