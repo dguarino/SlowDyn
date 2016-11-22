@@ -127,21 +127,14 @@ for i,comb in enumerate(combinations):
         h.save_data(Populations, data_folder, str(comb))
         end()
 
-<<<<<<< HEAD
     #else:
-=======
->>>>>>> 40c51a6c43c0a6fdc302a27fc61278d818416540
+
     if doParameterSearch:
         if i == 0:
             with open(data_folder+'/map.csv', 'wb') as csvfile:
                 mywriter = csv.writer(csvfile)
-<<<<<<< HEAD
-                mywriter.writerow( ['#row'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
-                mywriter.writerow( ['#column'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
-=======
                 mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
                 mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
->>>>>>> 40c51a6c43c0a6fdc302a27fc61278d818416540
 
         ratio,fqcy = h.analyse(external.params, data_folder, str(comb), removeDataFile)
         info.append([ratio,fqcy])
@@ -149,14 +142,11 @@ for i,comb in enumerate(combinations):
             with open(data_folder+'/map.csv', 'a') as csvfile:
                 mywriter = csv.writer(csvfile)
                 mywriter.writerow(info)
-<<<<<<< HEAD
             info = []
 
     else:
         h.analyse(external.params, data_folder, str(comb), removeDataFile)
-=======
-        info = []
->>>>>>> 40c51a6c43c0a6fdc302a27fc61278d818416540
+
 
         #write (fqcy,ratio) to map.csv file in which each row is an "a" value and each column is a "b" value + first 2 lines commented with values of a and b
 
