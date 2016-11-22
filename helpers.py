@@ -161,14 +161,21 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
             panels.append( Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize=1) )
             # firing rate
-            fr = rate(params, data.spiketrains, bin_size=10)
+            bin_size = 10
+            fr = rate(params, data.spiketrains, bin_size=bin_size)
             if key == 'py':
+                #threshold = np.mean(fr)
                 threshold = np.max(fr)/2
                 normfr = fr - threshold
                 uptime = len([val for val in normfr if val >0])
                 downtime = len([val for val in normfr if val < 0])
-                ratio = uptime/downtime
-                #print 'ratio', ratio
+                ratio = uptime/(uptime + downtime)
+                print len(data.spiketrains[0])
+                cut_value = max(len(data.spiketrains[0])/(bin_size*10),10)
+                dies = sum(fr[-cut_value:-1]) < 0.5
+                if dies:
+                    ratio = 0.
+                print 'ratio', ratio
             fig = plot.figure(56)
             plot.plot(fr)
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
