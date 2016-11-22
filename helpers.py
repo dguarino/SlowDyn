@@ -152,16 +152,23 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             n,bins,patches = plot.hist(np.mean(vm,1),50)
             fig.savefig(folder+'/Vm_histogram_'+key+addon+'.png')
 
-        if 'gsyn_exc' in rec and 'gsyn_inh' in rec:
+        if 'gsyn_exc' in rec:
             gsyn_exc = data.filter(name="gsyn_exc")
+            panels.append( Panel(gsyn_exc,ylabel = "Exc Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
+
+        if 'gsyn_inh' in rec:
             gsyn_inh = data.filter(name="gsyn_inh")
-            panels.append( Panel(gsyn,ylabel = "Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True,legend = None) )
+            panels.append( Panel(gsyn_inh,ylabel = "Inh Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
 
         if 'spikes' in rec:
             #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
             panels.append( Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize=1) )
             # firing rate
             fr = rate(params, data.spiketrains, bin_size=10)
+            fig = plot.figure(56)
+            plot.plot(fr)
+            fig.savefig(folder+'/firingrate_'+key+addon+'.png')
+            fig.clear()
             if key == 'py':
                 threshold = np.max(fr)/2
                 normfr = fr - threshold
@@ -169,12 +176,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
                 downtime = len([val for val in normfr if val < 0])
                 ratio = uptime/downtime
                 #print 'ratio', ratio
-            fig = plot.figure(56)
-            plot.plot(fr)
-            fig.savefig(folder+'/firingrate_'+key+addon+'.png')
-            fig.clear()
-
-
 
         Figure( *panels ).save(folder+'/'+key+addon+".png")
 
@@ -183,12 +184,13 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             lfp = compute_LFP(data)
             fe = 1/params['dt']*1000
             spectrum,freq,t = mlab.specgram(lfp, NFFT=len(lfp),Fs = fe )
-            #     remove first 2 values because of artefact
+            #  remove first 2 values because of artefact and find frequency that has the highest amplitude
             cut = 2
             argm = np.argmax(abs(spectrum)[cut:])
             value = freq[cut+argm]
             N = len(lfp)
             t = np.arange(0.,N)/fe
+
             fqcy = value
 
             fig = plot.figure(2)

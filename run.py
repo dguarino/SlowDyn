@@ -132,7 +132,6 @@ for i,comb in enumerate(combinations):
         h.save_data(Populations, data_folder, str(comb))
         end()
 
-<<<<<<< HEAD
     #else:
     if i == 0:
         with open(data_folder+'/map.csv', 'wb') as csvfile:
@@ -147,16 +146,6 @@ for i,comb in enumerate(combinations):
             mywriter = csv.writer(csvfile)
             mywriter.writerow(info)
         info = []
-=======
-    else:
-        ratio,fqcy = h.analyse(external.params, data_folder, str(comb), removeDataFile)
-        info.append([ratio,fqcy])
-        if (i+1)%len(search.params[testParams[1]]) == 0:
-            with open(data_folder+'/map.csv', 'a') as csvfile:
-                mywriter = csv.writer(csvfile)
-                mywriter.writerow(info)
-            info = []
->>>>>>> 8acadbf703312f7d09762ab59f370ff773990b6f
 
         #write (fqcy,ratio) to map.csv file in which each row is an "a" value and each column is a "b" value + first 2 lines commented with values of a and b
 
