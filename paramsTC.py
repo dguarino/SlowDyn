@@ -6,8 +6,6 @@ params = {
     'DistanceDep': True,
     'run_time': 5000, # ms
     'dt': 0.1, # ms
-    'Injections' : {
-    },
 
     'Populations' : {
         'ext' : {
@@ -72,7 +70,7 @@ params = {
                 'a'          : 13.,#uS
                 'b'          : 0.0 #nA
             }
-                
+
         },
         're' : {
             'n': {'ref':'py','ratio':0.0625},
@@ -190,7 +188,7 @@ params = {
             'weight' : 40e-3, #30e-3,
             'receptor_type' : 'inhibitory'
         },
-        
+
         're_re' : {
             'source' : 're',
             'target' : 're',
@@ -200,7 +198,7 @@ params = {
             'receptor_type' : 'inhibitory'
         },
 
-    
+
     },
 
 
@@ -258,10 +256,13 @@ params = {
                 'end' : 10,
             }
         }
-        
+
     },
 
-    'Modifiers' :{
-    }
+    'Modifiers': {
+    },
+
+    'Injections': {
+    },
 
 }
