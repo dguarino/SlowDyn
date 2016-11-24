@@ -26,7 +26,7 @@ def plot_map( csvfile, factor=100 ):
             size = float(pair[0]) # size for ratio
             # size for ratio
             # we want to be able to see whether the ratio is towards short-up, equal, or long-up
-            if size < 0.5:
+            if 0 < size < 0.5:
                 size = 1. - size
                 marks[i] = 's' # but we change their marker to diversify
             area[i] = size * factor

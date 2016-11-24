@@ -127,7 +127,6 @@ for i,comb in enumerate(combinations):
         h.save_data(Populations, data_folder, str(comb))
         end()
 
-
     if doParameterSearch:
         if i == 0:
             with open(data_folder+'/map.csv', 'wb') as csvfile:
@@ -136,6 +135,7 @@ for i,comb in enumerate(combinations):
                 mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
 
         ratio,fqcy = h.analyse(external.params, data_folder, str(comb), removeDataFile)
+
         if ratio!=None and fqcy!=None:
             info.append([ratio,fqcy])
             if (i+1)%len(search.params[testParams[1]]) == 0:
