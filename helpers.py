@@ -128,6 +128,8 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             print popKey, populations[popKey]
 
     score = {}
+    ratio = None
+    fqcy = None
 
     # default results name folder
     if folder=='results':
@@ -138,6 +140,10 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
     # iteration over populations and selctive plotting based on available recorders
     for key,rec in populations.iteritems():
         print key
+
+        #if os.path.exists(os.getcwd()+"/"+folder+'/'+key+addon+".png"):
+        #    print "skipping", key+addon, "(already existing)"
+        #    continue
 
         neo = pickle.load( open(folder+'/'+key+addon+'.pkl', "rb") )
         data = neo.segments[0]
@@ -151,30 +157,38 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             ylabel = key
             n,bins,patches = plot.hist(np.mean(vm,1),50)
             fig.savefig(folder+'/Vm_histogram_'+key+addon+'.png')
+            fig.clear()
 
-        if 'gsyn_exc' in rec:
-            gsyn_exc = data.filter(name="gsyn_exc")
-            panels.append( Panel(gsyn_exc,ylabel = "Exc Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
+        #if 'gsyn_exc' in rec:
+        #    gsyn_exc = data.filter(name="gsyn_exc")
+        #    panels.append( Panel(gsyn_exc,ylabel = "Exc Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
 
-        if 'gsyn_inh' in rec:
-            gsyn_inh = data.filter(name="gsyn_inh")
-            panels.append( Panel(gsyn_inh,ylabel = "Inh Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
+        #if 'gsyn_inh' in rec:
+        #    gsyn_inh = data.filter(name="gsyn_inh")
+        #    panels.append( Panel(gsyn_inh,ylabel = "Inh Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
 
         if 'spikes' in rec:
             #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
             panels.append( Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize=1) )
             # firing rate
-            fr = rate(params, data.spiketrains, bin_size=10)
+            bin_size = 10
+            fr = rate(params, data.spiketrains, bin_size=bin_size)
             fig = plot.figure(56)
             plot.plot(fr)
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
             if key == 'py':
+                #threshold = np.mean(fr)
                 threshold = np.max(fr)/2
                 normfr = fr - threshold
                 uptime = len([val for val in normfr if val >0])
                 downtime = len([val for val in normfr if val < 0])
-                ratio = uptime/downtime
+                ratio = uptime/(uptime + downtime)
+                #print len(data.spiketrains[0])
+                cut_value = max(len(data.spiketrains[0])/(bin_size*10),10)
+                dies = sum(fr[-cut_value:-1]) < 0.5
+                if dies:
+                    ratio = 0.
                 #print 'ratio', ratio
 
         Figure( *panels ).save(folder+'/'+key+addon+".png")
@@ -227,7 +241,7 @@ def compute_LFP(data):
       # the LFP is the result of cells' currents
       avg_i_by_t = numpy.sum(i,axis=1)/i.shape[0] #
       sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
-      lfp = (1/(4*numpy.pi*sigma)) *  avg_i_by_t
+      lfp = (1/(4*numpy.pi*sigma)) * avg_i_by_t
       return lfp
 
 

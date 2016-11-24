@@ -26,12 +26,14 @@ def plot_map( csvfile, factor=100 ):
             size = float(pair[0]) # size for ratio
             # size for ratio
             # we want to be able to see whether the ratio is towards short-up, equal, or long-up
-            if size < 1.:
+            if size < 0.5:
+                size = 1. - size
                 marks[i] = 's' # but we change their marker to diversify
             area[i] = size * factor
             i=i+1
 
     # normalize colors for matplotlib
+    fig = plot.figure(1)
     norm = ml.colors.Normalize(vmin=min(colors), vmax=max(colors), clip=True)
     mapper = plot.cm.ScalarMappable(norm=norm, cmap=plot.cm.jet)
     mapper._A = [] # hack to plot the colorbar http://stackoverflow.com/questions/8342549/matplotlib-add-colorbar-to-a-sequence-of-line-plots
@@ -39,6 +41,7 @@ def plot_map( csvfile, factor=100 ):
     plot.ylabel(text2)
     plot.xticks(p1, rotation='vertical')
     plot.yticks(p2)
+    #plot.xlim([.0000001,.1]) # TODO: remove!!!! hack just to plot the TC param search
     for x,y,a,c,m in zip(axis1,axis2,area,colors,marks):
         #print x,y,a,c
         plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none')
@@ -46,10 +49,11 @@ def plot_map( csvfile, factor=100 ):
     cbar.ax.set_ylabel('largest frequency', rotation=270)
     plot.tick_params(axis='both', which='major', labelsize=8)
     plot.tick_params(axis='both', which='minor', labelsize=8)
-
+    #plot.xscale('log') # TODO: remove!!!! hack just to plot the TC param search
     plot.savefig('search_map.png')
+    fig.clear()
 
 # using the function...
 factor = 100
-reader = csv.reader( open('map.csv', 'rb') )
+reader = csv.reader( open('results/TCps/map.csv', 'rb') )
 plot_map(reader, factor)
