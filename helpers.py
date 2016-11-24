@@ -159,13 +159,13 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fig.savefig(folder+'/Vm_histogram_'+key+addon+'.png')
             fig.clear()
 
-        #if 'gsyn_exc' in rec:
-        #    gsyn_exc = data.filter(name="gsyn_exc")
-        #    panels.append( Panel(gsyn_exc,ylabel = "Exc Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
+        if 'gsyn_exc' in rec:
+            gsyn_exc = data.filter(name="gsyn_exc")[0]
+            panels.append( Panel(gsyn_exc,ylabel = "Exc Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
 
-        #if 'gsyn_inh' in rec:
-        #    gsyn_inh = data.filter(name="gsyn_inh")
-        #    panels.append( Panel(gsyn_inh,ylabel = "Inh Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
+        if 'gsyn_inh' in rec:
+            gsyn_inh = data.filter(name="gsyn_inh")[0]
+            panels.append( Panel(gsyn_inh,ylabel = "Inh Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
 
         if 'spikes' in rec:
             #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
