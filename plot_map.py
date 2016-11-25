@@ -41,6 +41,7 @@ def plot_map( csvfile, factor=100 ):
     plot.ylabel(text2)
     plot.xticks(p1, rotation='vertical')
     plot.yticks(p2)
+    #plot.xlim([.0000001,.1]) # TODO: remove!!!! hack just to plot the TC param search
     for x,y,a,c,m in zip(axis1,axis2,area,colors,marks):
         #print x,y,a,c
         plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none')
@@ -48,11 +49,11 @@ def plot_map( csvfile, factor=100 ):
     cbar.ax.set_ylabel('largest frequency', rotation=270)
     plot.tick_params(axis='both', which='major', labelsize=8)
     plot.tick_params(axis='both', which='minor', labelsize=8)
-
+    #plot.xscale('log') # TODO: remove!!!! hack just to plot the TC param search
     plot.savefig('search_map.png')
     fig.clear()
 
 # using the function...
 factor = 100
-reader = csv.reader( open('results/1layer/map.csv', 'rb') )
+reader = csv.reader( open('results/TCps/map.csv', 'rb') )
 plot_map(reader, factor)
