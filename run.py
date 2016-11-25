@@ -121,7 +121,11 @@ for run in range(external.params['nb_runs']):
         shutil.copy('./'+params_filename+'.py', data_folder+ str(run)+'/'+params_filename+'_'+str(comb)+'.py')
 
         if not doAnalaysisOnly:
-            if os.path.exists(data_folder + str(run) +'/'+'py'+str(comb)+'.pkl'):
+            already_computed = 0
+            for pop in external.params['Populations'].keys():
+                if os.path.exists(data_folder + str(run) +'/'+'py'+str(comb)+'.pkl'):
+                    already_computed = already_computed + 1
+            if already_computed > 0:
                 print "already computed"
             else:
                 Populations = h.build_network(external.params)
