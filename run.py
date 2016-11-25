@@ -121,16 +121,19 @@ for run in range(external.params['nb_runs']):
         shutil.copy('./'+params_filename+'.py', data_folder+ str(run)+'/'+params_filename+'_'+str(comb)+'.py')
 
         if not doAnalaysisOnly:
-            Populations = h.build_network(external.params)
-            h.record_data(external.params, Populations)
-            h.perform_injections(external.params, Populations)
-            h.run_simulation(external.params)
-            h.save_data(Populations, data_folder + str(run), str(comb))
-            end()
+            if os.path.exists(data_folder + str(run) +'/'+'py'+str(comb)+'.pkl'):
+                print "already computed"
+            else:
+                Populations = h.build_network(external.params)
+                h.record_data(external.params, Populations)
+                h.perform_injections(external.params, Populations)
+                h.run_simulation(external.params)
+                h.save_data(Populations, data_folder + str(run), str(comb))
+                end()
         else :
             if doParameterSearch:
                 if i == 0:
-                    with open(data_folder+'/map'+str(run)+'.csv', 'wb') as csvfile:
+                    with open(data_folder+ str(run)+'/map'+'.csv', 'wb') as csvfile:
                         mywriter = csv.writer(csvfile)
                         mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
                         mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
@@ -140,7 +143,7 @@ for run in range(external.params['nb_runs']):
                 if ratio!=None and fqcy!=None:
                     info.append([ratio,fqcy])
                     if (i+1)%len(search.params[testParams[1]]) == 0:
-                        with open(data_folder+'/map'+str(run)+'.csv', 'a') as csvfile:
+                        with open(data_folder+str(run)+'/map'+'.csv', 'a') as csvfile:
                             mywriter = csv.writer(csvfile)
                             mywriter.writerow(info)
                             info = []
