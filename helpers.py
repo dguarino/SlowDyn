@@ -151,14 +151,23 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             ylabel = key
             n,bins,patches = plot.hist(np.mean(vm,1),50)
             fig.savefig(folder+'/Vm_histogram_'+key+addon+'.png')
+            Figure( *panels ).save(folder+'/'+key+addon+".png")
 
-        if 'gsyn_exc' in rec:
-            gsyn_exc = data.filter(name="gsyn_exc")
-            panels.append( Panel(gsyn_exc,ylabel = "Exc Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
+        
+        #if 'gsyn_exc' in rec:
+         #   print "blob"
+          #  gsyn_exc = data.filter(name="gsyn_exc")
+          #  print "blob2"
+          #  panels.append( Panel(gsyn_exc,ylabel = "Exc Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
+          #  print "ERROR?"
+          #  print len(panels)
+          #  Figure( *panels ).save(folder+'/'+key+addon+".png")
+          #  print "ERROR"
 
-        if 'gsyn_inh' in rec:
-            gsyn_inh = data.filter(name="gsyn_inh")
-            panels.append( Panel(gsyn_inh,ylabel = "Inh Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
+        #if 'gsyn_inh' in rec:
+        #    gsyn_inh = data.filter(name="gsyn_inh")
+        #    panels.append( Panel(gsyn_inh,ylabel = "Inh Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
+        #    Figure( *panels ).save(folder+'/'+key+addon+".png")
 
         if 'spikes' in rec:
             #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
@@ -178,8 +187,8 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
                 downtime = len([val for val in normfr if val < 0])
                 ratio = uptime/(uptime + downtime)
                 print len(data.spiketrains[0])
-                cut_value = max(len(data.spiketrains[0])/(bin_size*10),10)
-                dies = sum(fr[-cut_value:-1]) < 0.5
+                cut_value = max(len(data.spiketrains[0])/(bin_size*10),20)
+                dies = sum(fr[-cut_value:-1]) < 0.05
                 if dies:
                     ratio = 0.
                 print 'ratio', ratio
@@ -188,7 +197,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
 
-
+        print "panels",panels,"folder",folder,"key",key,"addon",addon
         Figure( *panels ).save(folder+'/'+key+addon+".png")
 
         # LFP

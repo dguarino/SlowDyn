@@ -143,7 +143,7 @@ for i,comb in enumerate(combinations):
                 mywriter = csv.writer(csvfile)
                 mywriter.writerow(info)
             info = []
-
+#
     else:
         h.analyse(external.params, data_folder, str(comb), removeDataFile)
 

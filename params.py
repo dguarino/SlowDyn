@@ -4,7 +4,8 @@ from pyNN.utility import Timer
 params = {
 
     'DistanceDep': True,
-    'run_time': 5000, # ms
+    'run_time': 10000, # ms
+    'nb_runs' : 10,
     'dt': 0.1, # ms
     'Injections' : {
     },
