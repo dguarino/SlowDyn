@@ -195,11 +195,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
 
-                cut_value = max(len(data.spiketrains[0])/(bin_size*10),10)
-                dies = sum(fr[-cut_value:-1]) < 0.5
-                if dies:
-                    ratio = 0.
-                #print 'ratio', ratio
         Figure( *panels ).save(folder+'/'+key+addon+".png")
 
         # LFP

@@ -4,7 +4,7 @@ from pyNN.utility import Timer
 params = {
 
     'DistanceDep': True,
-    'run_time': 10000, # ms
+    'run_time': 100, # ms
     'nb_runs' : 10,
     'dt': 0.1, # ms
     'Injections' : {
@@ -71,7 +71,7 @@ params = {
         'py_py' : {
             'source' : 'py',
             'target' : 'py',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),#, rng=NumpyRNG(1235342134, parallel_safe=False)),
             'synapse_type' : StaticSynapse,
             'weight' : 6e-3,
             'receptor_type' : 'excitatory'
@@ -79,7 +79,7 @@ params = {
         'py_inh' : {
             'source' : 'py',
             'target' : 'inh',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),#, rng=NumpyRNG(1235342134, parallel_safe=False)),
             'synapse_type' : StaticSynapse,
             'weight' : 6e-3,
             'receptor_type' : 'excitatory'
@@ -87,7 +87,7 @@ params = {
         'inh_py' : {
             'source' : 'inh',
             'target' : 'py',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),#, rng=NumpyRNG(1235342134, parallel_safe=False)),
             'synapse_type' : StaticSynapse,
             'weight' : 67e-3,
             'receptor_type' : 'inhibitory'

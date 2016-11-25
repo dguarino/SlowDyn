@@ -102,51 +102,52 @@ if doParameterSearch:
     combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search.params[testKey] for testKey in testParams))]
     #print len(combinations),combinations # to be commented
 
-info = []
-print 'info',info
-# run combinations
-for i,comb in enumerate(combinations):
-    print "param combination",i
-    print "current set:",comb
+for run in range(external.params['nb_runs']):
+    print "trial : ",run
+    info = []
+    # run combinations
+    for i,comb in enumerate(combinations):
+        print "param combination",i
+        print "current set:",comb
 
-    # replacement
-    for ckey,val in comb.iteritems():
-        keys = ckey.split('.') # get list from dotted string
-        replace(external.params,keys,val)
+        # replacement
+        for ckey,val in comb.iteritems():
+            keys = ckey.split('.') # get list from dotted string
+            replace(external.params,keys,val)
 
-    # save parameters in the data_folder
-    if not os.path.exists(data_folder):
-        os.makedirs(data_folder)
-    shutil.copy('./'+params_filename+'.py', data_folder+'/'+params_filename+'_'+str(comb)+'.py')
+        # save parameters in the data_folder
+        if not os.path.exists(data_folder+str(run)):
+            os.makedirs(data_folder+str(run))
+        shutil.copy('./'+params_filename+'.py', data_folder+ str(run)+'/'+params_filename+'_'+str(comb)+'.py')
 
-    if not doAnalaysisOnly:
-        Populations = h.build_network(external.params)
-        h.record_data(external.params, Populations)
-        h.perform_injections(external.params, Populations)
-        h.run_simulation(external.params)
-        h.save_data(Populations, data_folder, str(comb))
-        end()
+        if not doAnalaysisOnly:
+            Populations = h.build_network(external.params)
+            h.record_data(external.params, Populations)
+            h.perform_injections(external.params, Populations)
+            h.run_simulation(external.params)
+            h.save_data(Populations, data_folder + str(run), str(comb))
+            end()
+        else :
+            if doParameterSearch:
+                if i == 0:
+                    with open(data_folder+'/map'+str(run)+'.csv', 'wb') as csvfile:
+                        mywriter = csv.writer(csvfile)
+                        mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
+                        mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
 
-    if doParameterSearch:
-        if i == 0:
-            with open(data_folder+'/map.csv', 'wb') as csvfile:
-                mywriter = csv.writer(csvfile)
-                mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
-                mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
+                ratio,fqcy = h.analyse(external.params, data_folder + str(run), str(comb), removeDataFile)
 
-        ratio,fqcy = h.analyse(external.params, data_folder, str(comb), removeDataFile)
+                if ratio!=None and fqcy!=None:
+                    info.append([ratio,fqcy])
+                    if (i+1)%len(search.params[testParams[1]]) == 0:
+                        with open(data_folder+'/map'+str(run)+'.csv', 'a') as csvfile:
+                            mywriter = csv.writer(csvfile)
+                            mywriter.writerow(info)
+                            info = []
 
-        if ratio!=None and fqcy!=None:
-            info.append([ratio,fqcy])
-            if (i+1)%len(search.params[testParams[1]]) == 0:
-                with open(data_folder+'/map.csv', 'a') as csvfile:
-                    mywriter = csv.writer(csvfile)
-                    mywriter.writerow(info)
+            else:
+                h.analyse(external.params, data_folder+str(run), str(comb), removeDataFile)
                 info = []
-
-    else:
-        h.analyse(external.params, data_folder, str(comb), removeDataFile)
-        info = []
 
         #write (fqcy,ratio) to map.csv file in which each row is an "a" value and each column is a "b" value + first 2 lines commented with values of a and b
 
