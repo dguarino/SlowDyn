@@ -15,37 +15,38 @@ def psd_map( csvfile, axis=1):
     header2 = data.pop(0)[0]
     text2, p2 = header2.strip('#').split(':')
     p2 = eval(p2)
-    freqs = map(float,data[2])
+    freqs = map(float,data[0])
     data = data[1:]
-    print len(data)
     
     if axis == 0:
         nb_maps = len(p2)
     else:
         nb_maps = len(p1)
 
-    
     for ind in range(nb_maps):
-        x = np.array(freqs)
+        x = np.array([freqs[i] for i in range(len(freqs)) if freqs[i]<5.])
         if axis == 0:
             y = np.array(p1)
             z = np.array([map(float,data[i]) for i in [ind*len(p1),(ind+1)*len(p1)]])
+            z = z[:,0:len(x)]
         else:
             y = np.array(p2)
             indices = np.arange(ind,len(data),len(p1))
             print indices
+            print [data[i][0] for i in indices]
             z = np.array([map(float,data[i]) for i in indices ])
+            z = z[:,0:len(x)]
             print type(x[0]),type(y[0]),type(z[0,0])
 
         xx,yy=np.meshgrid(x,y)
         grid=np.c_[xx.ravel(),yy.ravel()]
-        
+        print xx.shape, yy.shape, z.shape
         fig = plot.figure(1)
         ax = fig.gca(projection='3d')
         surf = ax.plot_surface(xx, yy, z, rstride=1, cstride=1, cmap=cm.gist_rainbow,linewidth=0, antialiased=False)
         fig.colorbar(surf)
         plot.xlabel('Frequency')
-        plot.xticks(freqs, rotation='vertical')
+        #plot.xticks( map(lambda x: round(x,2),x), rotation = 'vertical')
         if axis == 0:
             plot.ylabel(text1)
             plot.yticks(p1)
@@ -59,5 +60,5 @@ def psd_map( csvfile, axis=1):
 
   
     
-reader = csv.reader( open('results/test0/psdmap.csv', 'rb') )
+reader = csv.reader( open('results/1layer0.O5LTS0/psdmap.csv', 'rb') )
 psd_map(reader)

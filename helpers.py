@@ -178,14 +178,13 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
             if key == 'py':
-                #threshold = np.mean(fr)
                 threshold = np.max(fr)/2
                 normfr = fr - threshold
-                uptime = len([val for val in normfr if val >0])
+                uptime = len([val for val in normfr if val > 0])
                 downtime = len([val for val in normfr if val < 0])
                 ratio = uptime/(uptime + downtime)
                 print len(data.spiketrains[0])
-                cut_value = max(len(data.spiketrains[0])/(bin_size*10),20)
+                cut_value = max(len(data.spiketrains[0])/(bin_size),50)
                 dies = sum(fr[-cut_value:-1]) < 0.05
                 if dies:
                     ratio = 0.
@@ -200,8 +199,11 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         # LFP
         if 'v' in rec and 'gsyn_exc' in rec:
             lfp = compute_LFP(data)
+            lfp = lfp - mean(lfp)
             fe = 1/params['dt']*1000
             spectrum,freq,t = mlab.specgram(lfp, NFFT=len(lfp),Fs = fe )
+            psd,freqs_psd = mlab.psd(lfp, Fs = fe, NFFT=len(lfp))
+            x = [freqs_psd[i] for i in range(len(freqs_psd)) if freqs_psd[i]<5.]
             #  remove first 2 values because of artefact and find frequency that has the highest amplitude
             cut = 2
             argm = np.argmax(abs(spectrum)[cut:])
@@ -216,6 +218,8 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             plot.plot(t,lfp)
             plot.subplot(2,1,2)
             plot.plot(freq[cut:30],np.abs(spectrum)[cut:30])
+            plot.plot(x,psd[0:len(x)])
+            #plot.legend('Fourier','psd')
             fig.savefig(folder+'/LFP_'+key+addon+'.png')
             fig.clear()
 
@@ -231,7 +235,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         if removeDataFile:
             os.remove(folder+'/'+key+addon+'.pkl')
 
-    return ratio,fqcy
+    return ratio,fqcy, psd, freqs_psd
 
 
 
