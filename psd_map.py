@@ -17,6 +17,7 @@ def psd_map( csvfile, axis=1):
     p2 = eval(p2)
     freqs = map(float,data[0])
     data = data[1:]
+    zmax = np.max([map(float,data[i]) for i in range(len(data))])
     
     if axis == 0:
         nb_maps = len(p2)
@@ -26,25 +27,24 @@ def psd_map( csvfile, axis=1):
     for ind in range(nb_maps):
         x = np.array([freqs[i] for i in range(len(freqs)) if freqs[i]<5.])
         if axis == 0:
-            y = np.array(p1)
-            z = np.array([map(float,data[i]) for i in [ind*len(p1),(ind+1)*len(p1)]])
+            y = np.array(p1[:-1])
+            z = np.array([map(float,data[i]) for i in range(ind*len(p1),(ind+1)*len(p1)-1)])
             z = z[:,0:len(x)]
         else:
             y = np.array(p2)
             indices = np.arange(ind,len(data),len(p1))
-            print indices
-            print [data[i][0] for i in indices]
             z = np.array([map(float,data[i]) for i in indices ])
             z = z[:,0:len(x)]
-            print type(x[0]),type(y[0]),type(z[0,0])
 
         xx,yy=np.meshgrid(x,y)
         grid=np.c_[xx.ravel(),yy.ravel()]
         print xx.shape, yy.shape, z.shape
+
         fig = plot.figure(1)
         ax = fig.gca(projection='3d')
-        surf = ax.plot_surface(xx, yy, z, rstride=1, cstride=1, cmap=cm.gist_rainbow,linewidth=0, antialiased=False)
+        surf = ax.plot_surface(xx, yy, z, rstride=1, cstride=1, cmap=cm.gist_rainbow,linewidth=0, antialiased=False, vmax = zmax)
         fig.colorbar(surf)
+        ax.set_zlim3d(0,zmax)
         plot.xlabel('Frequency')
         #plot.xticks( map(lambda x: round(x,2),x), rotation = 'vertical')
         if axis == 0:
@@ -61,4 +61,4 @@ def psd_map( csvfile, axis=1):
   
     
 reader = csv.reader( open('results/1layer0.O5LTS0/psdmap.csv', 'rb') )
-psd_map(reader)
+psd_map(reader,axis=1)
