@@ -178,7 +178,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
             if key == 'py':
-                threshold = np.max(fr)/2
+                threshold = 0.25#np.max(fr)/2
                 normfr = fr - threshold
                 uptime = len([val for val in normfr if val > 0])
                 downtime = len([val for val in normfr if val < 0])
@@ -199,7 +199,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         # LFP
         if 'v' in rec and 'gsyn_exc' in rec:
             lfp = compute_LFP(data)
-            lfp = lfp - mean(lfp)
+            lfp = lfp - np.mean(lfp)
             fe = 1/params['dt']*1000
             spectrum,freq,t = mlab.specgram(lfp, NFFT=len(lfp),Fs = fe )
             psd,freqs_psd = mlab.psd(lfp, Fs = fe, NFFT=len(lfp))

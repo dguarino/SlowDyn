@@ -62,3 +62,23 @@ def psd_map( csvfile, axis=1):
     
 reader = csv.reader( open('results/1layer0.O5LTS0/psdmap.csv', 'rb') )
 psd_map(reader,axis=1)
+
+
+
+
+def mean_maps(params,filename):
+    for run in params['nb_runs']:
+        reader = csv.reader( open('results/' + filename+str(run)+'psdmap.csv', 'rb') )
+        local_data = list(reader)
+        local_data[2:] = [map(float,data[i]), for in range(2,len(data))]
+        if run == 0:
+            data = np.array(local_data)
+        else:
+            data[3:,:] = data[3:,:] + local_data[3:,:]
+    
+    data[3:,:] = data[3:,:]/params['nb_runs']
+    with open(data_folder+ str(run)+'/mean_psd'+'.csv', 'wb') as csvfile:
+        mywriter = csv.writer(csvfile)
+        for row in range(data.shape[0]):
+            mywriter.writerow(data[row,:])
+            
