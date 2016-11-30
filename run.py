@@ -136,13 +136,20 @@ for run in range(external.params['nb_runs']):
                 end()
         else :
             if doParameterSearch:
+
+                ratio,fqcy,psd,freq = h.analyse(external.params, data_folder + str(run), str(comb), removeDataFile)
+
                 if i == 0:
                     with open(data_folder+ str(run)+'/map'+'.csv', 'wb') as csvfile:
                         mywriter = csv.writer(csvfile)
                         mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
                         mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
 
-                ratio,fqcy = h.analyse(external.params, data_folder + str(run), str(comb), removeDataFile)
+                    with open(data_folder+ str(run)+'/psdmap'+'.csv', 'wb') as csvfile:
+                        mywriter = csv.writer(csvfile)
+                        mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
+                        mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
+                        mywriter.writerow(freq)
 
                 if ratio!=None and fqcy!=None:
                     info.append([ratio,fqcy])
@@ -151,13 +158,17 @@ for run in range(external.params['nb_runs']):
                             mywriter = csv.writer(csvfile)
                             mywriter.writerow(info)
                             info = []
+                if psd != None and freq != None:
+                     with open(data_folder+str(run)+'/psdmap'+'.csv', 'a') as csvfile:
+                            mywriter = csv.writer(csvfile)
+                            mywriter.writerow(psd)
 
             else:
                 h.analyse(external.params, data_folder+str(run), str(comb), removeDataFile)
                 info = []
 
-        #write (fqcy,ratio) to map.csv file in which each row is an "a" value and each column is a "b" value + first 2 lines commented with values of a and b
 
-#if doAnalaysisOnly:
+
+                #if doAnalaysisOnly:
 #    with open(data_folder+'/map.csv', 'a') as csvfile:
 #        h.plot_map(csvfile, factor)
