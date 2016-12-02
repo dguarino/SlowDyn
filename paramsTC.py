@@ -4,7 +4,8 @@ from pyNN.utility import Timer
 params = {
 
     'DistanceDep': True,
-    'run_time': 50, # ms
+    'run_time': 10000, # ms
+    'nb_runs' : 8,
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -106,7 +107,7 @@ params = {
         'py_py' : {
             'source' : 'py',
             'target' : 'py',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 6e-3,
             'receptor_type' : 'excitatory'
@@ -114,7 +115,7 @@ params = {
         'py_inh' : {
             'source' : 'py',
             'target' : 'inh',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 6e-3,
             'receptor_type' : 'excitatory'
@@ -122,7 +123,7 @@ params = {
         'inh_py' : {
             'source' : 'inh',
             'target' : 'py',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 67e-3,
             'receptor_type' : 'inhibitory'
@@ -130,7 +131,7 @@ params = {
         'inh_inh' : {
             'source' : 'inh',
             'target' : 'inh',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 67e-3,
             'receptor_type' : 'inhibitory'
@@ -139,7 +140,7 @@ params = {
         'py_tc' : {
             'source' : 'py',
             'target' : 'tc',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 6e-3,
             'receptor_type' : 'excitatory'
@@ -148,7 +149,7 @@ params = {
         'py_re' : {
             'source' : 'py',
             'target' : 're',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 6e-3,
             'receptor_type' : 'excitatory'
@@ -157,7 +158,7 @@ params = {
         'tc_re' : {
             'source' : 'tc',
             'target' : 're',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 30e-3,
             'receptor_type' : 'excitatory'
@@ -166,7 +167,7 @@ params = {
         'tc_py' : {
             'source' : 'tc',
             'target' : 'py',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 6e-3,
             'receptor_type' : 'excitatory'
@@ -175,7 +176,7 @@ params = {
         'tc_inh' : {
             'source' : 'tc',
             'target' : 'inh',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 67e-3,
             'receptor_type' : 'excitatory'
@@ -183,7 +184,7 @@ params = {
         're_tc' : {
             'source' : 're',
             'target' : 'tc',
-            'connector' : FixedProbabilityConnector(.08, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.08, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 40e-3, #30e-3,
             'receptor_type' : 'inhibitory'
@@ -192,7 +193,7 @@ params = {
         're_re' : {
             'source' : 're',
             'target' : 're',
-            'connector' : FixedProbabilityConnector(.08, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
+            'connector' : FixedProbabilityConnector(.08, allow_self_connections=False),
             'synapse_type' : StaticSynapse,
             'weight' : 30e-3,
             'receptor_type' : 'inhibitory'
@@ -233,10 +234,10 @@ params = {
                 'start' : 0,
                 'end' : 100,
             },
-            #'gsyn_inh' :{
-            #    'start' : 0,
-            #    'end' : 10,
-           # },
+            'gsyn_exc' :{
+                'start' : 0,
+                'end' : 10,
+            },
             'v' : {
                 'start' : 0,
                 'end' : 10,
@@ -247,10 +248,10 @@ params = {
                 'start' : 0,
                 'end' : 100,
             },
-            #'gsyn_inh' :{
-            #    'start' : 0,
-            #    'end' : 10,
-           # },
+            'gsyn_exc' :{
+                'start' : 0,
+                'end' : 10,
+            },
             'v' : {
                 'start' : 0,
                 'end' : 10,
@@ -260,6 +261,19 @@ params = {
     },
 
     'Modifiers': {
+        'py' : {
+            'cells' : {
+               'start' : 0,
+               'end' : 0.1
+            },
+            'properties' : {
+                'tau_w' : 150.,
+                'cm' : 0.15,
+                'tau_m' : 30.0, #
+                'a' : 12., #Alain 0.02, #uS
+                'b' : .03 #0.0
+            }
+        }
     },
 
     'Injections': {
