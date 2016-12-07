@@ -144,7 +144,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         #if os.path.exists(os.getcwd()+"/"+folder+'/'+key+addon+".png"):
         #    print "skipping", key+addon, "(already existing)"
         #    continue
-
+        print "key", key,"addon",addon
         neo = pickle.load( open(folder+'/'+key+addon+'.pkl', "rb") )
         data = neo.segments[0]
 
@@ -241,10 +241,13 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
 
 def compute_fqcyratio(psd,freqs_psd):
       cut = 2
-      argm = np.argmax(abs(psd)[cut:])
       max = np.max(abs(psd)[cut:])
-      others = sum(psd[i] for i in range(len(freqs_psd)) if freqs_psd[i]!= freqs_psd[argm])
-      fqcy_ratio = max/others
+      argm = np.argmax(abs(psd)[cut:])+cut
+      others = sum(psd[i] for i in range(len(freqs_psd)) if (freqs_psd[i] != freqs_psd[argm] and psd[i]>max/2))
+      if others == 0:
+          fqcy_ratio = 1
+      else:
+          fqcy_ratio = max/others
       return fqcy_ratio
 
 

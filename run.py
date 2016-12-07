@@ -86,7 +86,7 @@ for opt, arg in opts:
         print "Executing parameter search using file:", arg
         search = __import__(arg)
         doParameterSearch = True
-
+        
 if params_filename=='':
     print usage_str,"error"
     sys.exit(2)
@@ -104,11 +104,10 @@ if doParameterSearch:
     #print len(combinations),combinations # to be commented
 
 for run in range(external.params['nb_runs']):
-    print "trial : ",run
     info = []
     # run combinations
     for i,comb in enumerate(combinations):
-        print "param combination",i
+        print "param combination",i, "trial",run
         print "current set:",comb
 
         # replacement
@@ -137,30 +136,36 @@ for run in range(external.params['nb_runs']):
                 end()
         else :
             if doParameterSearch:
+                already_computed = 0
+                for pop in external.params['Populations'].keys():
+                    if os.path.exists(data_folder + str(run) +'/'+pop+str(comb)+'.png'):
+                        already_computed = already_computed + 1
+                if already_computed > 0:
+                    print "already computed"
+                else:
+                    ratio,fqcy,psd,freq = h.analyse(external.params, data_folder + str(run), str(comb), removeDataFile)
 
-                ratio,fqcy,psd,freq = h.analyse(external.params, data_folder + str(run), str(comb), removeDataFile)
-
-                if i == 0:
-                    with open(data_folder+ str(run)+'/map'+'.csv', 'wb') as csvfile:
-                        mywriter = csv.writer(csvfile)
-                        mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
-                        mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
-
-                    with open(data_folder+ str(run)+'/psdmap'+'.csv', 'wb') as csvfile:
-                        mywriter = csv.writer(csvfile)
-                        mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
-                        mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
-                        mywriter.writerow(freq)
-
-                if ratio!=None and fqcy!=None:
-                    info.append([ratio,fqcy])
-                    if (i+1)%len(search.params[testParams[1]]) == 0:
-                        with open(data_folder+str(run)+'/map'+'.csv', 'a') as csvfile:
+                    if i == 0:
+                        with open(data_folder+ str(run)+'/map'+'.csv', 'wb') as csvfile:
                             mywriter = csv.writer(csvfile)
-                            mywriter.writerow(info)
-                            info = []
-                if psd != None and freq != None:
-                     with open(data_folder+str(run)+'/psdmap'+'.csv', 'a') as csvfile:
+                            mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
+                            mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
+
+                        with open(data_folder+ str(run)+'/psdmap'+'.csv', 'wb') as csvfile:
+                            mywriter = csv.writer(csvfile)
+                            mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
+                            mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
+                            mywriter.writerow(freq)
+
+                    if ratio!=None and fqcy!=None:
+                        info.append([ratio,fqcy])
+                        if (i+1)%len(search.params[testParams[1]]) == 0:
+                            with open(data_folder+str(run)+'/map'+'.csv', 'a') as csvfile:
+                                mywriter = csv.writer(csvfile)
+                                mywriter.writerow(info)
+                                info = []
+                    if psd != None and freq != None:
+                        with open(data_folder+str(run)+'/psdmap'+'.csv', 'a') as csvfile:
                             mywriter = csv.writer(csvfile)
                             mywriter.writerow(psd)
 
