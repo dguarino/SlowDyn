@@ -59,6 +59,7 @@ params_filename = ''
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "harf:p:s:" )
+    print opts,args
 except getopt.GetoptError:
     print usage_str,"error"
     sys.exit(2)
@@ -123,7 +124,7 @@ for run in range(external.params['nb_runs']):
         if not doAnalaysisOnly:
             already_computed = 0
             for pop in external.params['Populations'].keys():
-                if os.path.exists(data_folder + str(run) +'/'+'py'+str(comb)+'.pkl'):
+                if os.path.exists(data_folder + str(run) +'/'+pop+str(comb)+'.pkl'):
                     already_computed = already_computed + 1
             if already_computed > 0:
                 print "already computed"
