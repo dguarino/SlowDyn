@@ -4,6 +4,7 @@ import matplotlib as ml
 import matplotlib.pyplot as plot
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 from matplotlib import cm
+from params import params
 
 def psd_map( csvfile, axis=1):
     #axis = 0 means that we represent variation of psd with a for different values of b,
@@ -27,8 +28,8 @@ def psd_map( csvfile, axis=1):
     for ind in range(nb_maps):
         x = np.array([freqs[i] for i in range(len(freqs)) if freqs[i]<5.])
         if axis == 0:
-            y = np.array(p1[:-1])
-            z = np.array([map(float,data[i]) for i in range(ind*len(p1),(ind+1)*len(p1)-1)])
+            y = np.array(p1)
+            z = np.array([map(float,data[i]) for i in range(ind*len(p1),(ind+1)*len(p1))])
             z = z[:,0:len(x)]
         else:
             y = np.array(p2)
@@ -58,27 +59,33 @@ def psd_map( csvfile, axis=1):
         fig.clear()
 
 
-  
-    
-reader = csv.reader( open('results/1layer0.O5LTS0/psdmap.csv', 'rb') )
-psd_map(reader,axis=1)
 
 
-
-
-def mean_maps(params,filename):
-    for run in params['nb_runs']:
-        reader = csv.reader( open('results/' + filename+str(run)+'psdmap.csv', 'rb') )
-        local_data = list(reader)
-        local_data[2:] = [map(float,data[i]), for in range(2,len(data))]
+def mean_psdmaps(nb_runs,filename):
+    for run in range(nb_runs):
+        reader = csv.reader( open('results/' + filename+'-'+str(run)+'.csv', 'rb') )
+        org_data = list(reader)
+        local_data = np.array([map(float,org_data[i]) for i in range(2,len(org_data))])
         if run == 0:
-            data = np.array(local_data)
+            data = local_data
+            print run
         else:
             data[3:,:] = data[3:,:] + local_data[3:,:]
+            print run
     
-    data[3:,:] = data[3:,:]/params['nb_runs']
-    with open(data_folder+ str(run)+'/mean_psd'+'.csv', 'wb') as csvfile:
+    data[3:,:] /= nb_runs
+    with open('results/csvmaps/mapsTCLTS/mean_psd'+'.csv', 'wb') as csvfile:
         mywriter = csv.writer(csvfile)
+        mywriter.writerow(org_data[0])
+        mywriter.writerow(org_data[1])
         for row in range(data.shape[0]):
             mywriter.writerow(data[row,:])
             
+
+mean_psdmaps(8,'csvmaps/mapsTCLTS/psdmap0.2')
+reader = csv.reader( open('results/csvmaps/mapsTCLTS/mean_psd.csv', 'rb') )
+psd_map(reader,axis=1)
+reader = csv.reader( open('results/csvmaps/mapsTCLTS/mean_psd.csv', 'rb') )
+psd_map(reader,axis=0)
+
+

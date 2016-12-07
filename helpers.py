@@ -144,7 +144,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         #if os.path.exists(os.getcwd()+"/"+folder+'/'+key+addon+".png"):
         #    print "skipping", key+addon, "(already existing)"
         #    continue
-
+        print "key", key,"addon",addon
         neo = pickle.load( open(folder+'/'+key+addon+'.pkl', "rb") )
         data = neo.segments[0]
 
@@ -177,18 +177,19 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             plot.plot(fr)
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
+
             if key == 'py':
                 threshold = 0.25#np.max(fr)/2
                 normfr = fr - threshold
                 uptime = len([val for val in normfr if val > 0])
                 downtime = len([val for val in normfr if val < 0])
                 ratio = uptime/(uptime + downtime)
-                print len(data.spiketrains[0])
+
                 cut_value = max(len(data.spiketrains[0])/(bin_size),50)
                 dies = sum(fr[-cut_value:-1]) < 0.05
                 if dies:
                     ratio = 0.
-                print 'ratio', ratio
+
             fig = plot.figure(56)
             plot.plot(fr)
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
@@ -202,19 +203,19 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             lfp = lfp - np.mean(lfp)
             fe = 1/params['dt']*1000
             spectrum,freq,t = mlab.specgram(lfp, NFFT=len(lfp),Fs = fe )
-            psd,freqs_psd = mlab.psd(lfp, Fs = fe, NFFT=len(lfp))
+            psd,freqs_psd = mlab.psd(lfp, Fs = fe, NFFT=int(len(lfp)/4))
             x = [freqs_psd[i] for i in range(len(freqs_psd)) if freqs_psd[i]<5.]
-            #  remove first 2 values because of artefact and find frequency that has the highest amplitude
             cut = 2
             argm = np.argmax(abs(spectrum)[cut:])
-            value = freq[cut+argm]
+            fqcy = freq[cut+argm]
             N = len(lfp)
             t = np.arange(0.,N)/fe
-
-            fqcy = value
+            
+            fqcy_ratio = compute_fqcyratio(psd,freqs_psd)
+            print "fqcy_ratio", fqcy_ratio
 
             fig = plot.figure(2)
-            plot.subplot(2,1,1)
+            plot.subplot(2,1,1) 
             plot.plot(t,lfp)
             plot.subplot(2,1,2)
             plot.plot(freq[cut:30],np.abs(spectrum)[cut:30])
@@ -237,6 +238,17 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
 
     return ratio,fqcy, psd, freqs_psd
 
+
+def compute_fqcyratio(psd,freqs_psd):
+      cut = 2
+      max = np.max(abs(psd)[cut:])
+      argm = np.argmax(abs(psd)[cut:])+cut
+      others = sum(psd[i] for i in range(len(freqs_psd)) if (freqs_psd[i] != freqs_psd[argm] and psd[i]>max/2))
+      if others == 0:
+          fqcy_ratio = 1
+      else:
+          fqcy_ratio = max/others
+      return fqcy_ratio
 
 
 def compute_LFP(data):
