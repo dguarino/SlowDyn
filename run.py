@@ -151,6 +151,7 @@ for run in range(external.params['nb_runs']):
                         mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
                         mywriter.writerow(freq)
 
+
                 if ratio!=None and fqcy!=None:
                     info.append([ratio,fqcy])
                     if (i+1)%len(search.params[testParams[1]]) == 0:
