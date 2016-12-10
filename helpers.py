@@ -168,30 +168,33 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             panels.append( Panel(gsyn_inh,ylabel = "Inh Synaptic conductance (uS)",xlabel="Time (ms)", xticks=True, legend=None) )
 
         if 'spikes' in rec:
-            #Panel(rd.sample(data.spiketrains,100), xlabel="Time (ms)", xticks=True, markersize = 1)
             panels.append( Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize=1) )
-            # firing rate
             bin_size = 10
+            minlen = 5 # 50ms : minimal duration for an upstate as in Renart et al 2010
             fr = rate(params, data.spiketrains, bin_size=bin_size)
+            # ratio (and additions to figure)
             fig = plot.figure(56)
-            plot.plot(fr)
-            fig.savefig(folder+'/firingrate_'+key+addon+'.png')
-            fig.clear()
-
+            clr = 'black'
             if key == 'py':
-                threshold = 0.25#np.max(fr)/2
-                normfr = fr - threshold
-                uptime = len([val for val in normfr if val > 0])
-                downtime = len([val for val in normfr if val < 0])
-                ratio = uptime/(uptime + downtime)
-
+                threshold = np.max(fr) * .2
+                crossings = np.where(fr > threshold)[0]
+                ups = []
+                # group the up bins by their duration (consecutive indexes together)
+                for group in np.split(crossings, np.where(np.diff(crossings)!=1)[0]+1):
+                    if len(group) > minlen:
+                        ups.append(group)
+                uptimes = np.concatenate(ups)
+                uppoints = np.ones(len(uptimes)) * threshold
+                plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
+                ratio = len(uptimes) / (len(fr)-len(uptimes))
                 cut_value = max(len(data.spiketrains[0])/(bin_size),50)
                 dies = sum(fr[-cut_value:-1]) < 0.05
                 if dies:
                     ratio = 0.
-
-            fig = plot.figure(56)
-            plot.plot(fr)
+                print "ratio:",ratio
+                clr = str(ratio)
+            plot.plot(fr,color=clr,linewidth=2)
+            plot.ylim([.0,1.])
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
 
@@ -210,12 +213,12 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fqcy = freq[cut+argm]
             N = len(lfp)
             t = np.arange(0.,N)/fe
-            
+
             fqcy_ratio = compute_fqcyratio(psd,freqs_psd)
             print "fqcy_ratio", fqcy_ratio
 
             fig = plot.figure(2)
-            plot.subplot(2,1,1) 
+            plot.subplot(2,1,1)
             plot.plot(t,lfp)
             plot.subplot(2,1,2)
             plot.plot(freq[cut:30],np.abs(spectrum)[cut:30])
