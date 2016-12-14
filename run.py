@@ -140,10 +140,11 @@ for run in range(external.params['nb_runs']):
                 for pop in external.params['Populations'].keys():
                     if os.path.exists(data_folder + str(run) +'/'+pop+str(comb)+'.png'):
                         already_computed = already_computed + 1
-                if already_computed > 0:
-                    print "already computed"
+                if already_computed >= len(external.params['Populations']) - 1:
+                    print "already analysed"
                 else:
-                    ratio,fqcy,psd,freq = h.analyse(external.params, data_folder + str(run), str(comb), removeDataFile)
+                    ratio,fqcy,psd,freq, fqcy_ratio = h.analyse(external.params, data_folder + str(run), str(comb), removeDataFile)
+                    print "ratio",ratio,"fqcy",fqcy,"psd",psd,"freq",freq
 
                     if i == 0:
                         with open(data_folder+ str(run)+'/map'+'.csv', 'wb') as csvfile:
@@ -158,7 +159,8 @@ for run in range(external.params['nb_runs']):
                             mywriter.writerow(freq)
 
                     if ratio!=None and fqcy!=None:
-                        info.append([ratio,fqcy])
+                        print "appending to map",ratio,fqcy
+                        info.append([ratio,fqcy,fqcy_ratio])
                         if (i+1)%len(search.params[testParams[1]]) == 0:
                             with open(data_folder+str(run)+'/map'+'.csv', 'a') as csvfile:
                                 mywriter = csv.writer(csvfile)

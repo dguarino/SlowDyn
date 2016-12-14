@@ -27,6 +27,7 @@ def plot_map( csvfile, factor=100 ):
         #for col in row:
             pair = eval(col)
             colors[i] = float(pair[1]) # color for freq
+            print "freq",colors[i]
             size = float(pair[0]) # size for ratio
             # size for ratio
             # we want to be able to see whether the ratio is towards short-up, equal, or long-up
@@ -42,7 +43,7 @@ def plot_map( csvfile, factor=100 ):
     norm = ml.colors.Normalize(vmin=min(colors), vmax=max(colors), clip=True)
     mapper = ml.cm.ScalarMappable(norm=norm, cmap=plot.cm.jet)
     mapper._A = [] # hack to plot the colorbar http://stackoverflow.com/questions/8342549/matplotlib-add-colorbar-to-a-sequence-of-line-plots
-    mapper.set_clim(0.,4.)
+    #mapper.set_clim(0.,20.)
     plot.xlabel(text1)
     plot.ylabel(text2)
     plot.xticks(p1, rotation='vertical')
@@ -91,7 +92,7 @@ def plot_var_map( csvfile, std, factor = 100):
     norm = ml.colors.Normalize(vmin=min(colors), vmax=max(colors), clip=True)
     mapper = ml.cm.ScalarMappable(norm=norm, cmap=plot.cm.jet)
     mapper._A = [] # hack to plot the colorbar http://stackoverflow.com/questions/8342549/matplotlib-add-colorbar-to-a-sequence-of-line-plots
-    mapper.set_clim(vmin = 0.,vmax = 4.)
+    #mapper.set_clim(vmin = 0.,vmax = 20.)
     plot.xlabel(text1)
     plot.ylabel(text2)
     plot.xticks(p1, rotation='vertical')
@@ -115,9 +116,11 @@ def mean_maps(nb_runs,filename):
         print run
         reader = csv.reader( open('results/' + filename+'-'+str(run)+'.csv', 'rb') )
         data = list(reader)
+        print len(data)
         if run == 0:
             mean_data = data
         local_data = np.array([data[i] for i in range(2,len(data))])
+        print local_data.shape
         fqcy = np.zeros((local_data.shape[0],local_data.shape[1],params['nb_runs']))
         for i in range(len(local_data)):
             for j in range(len(local_data[i])):
@@ -126,15 +129,14 @@ def mean_maps(nb_runs,filename):
                 else:
                     mean_data[i+2][j] = mean_data[i+2][j] + np.array(eval(local_data[i][j]))
                 fqcy[i,j,run] = np.array(eval(local_data[i][j]))[1]
-        print np.array(eval(local_data[5][8]))
     
     for i in range(len(local_data)):
          for j in range(len(local_data[i])):
              mean_data[i+2][j] = (mean_data[i+2][j]/nb_runs).tolist()
-    print mean_data[5][8]
+    print "mean",np.mean([np.mean(mean_data[i]) for i in range(2,len(data))]), "std",np.std([np.std(mean_data[i]) for i in range(2,len(data))])
     std = np.std(fqcy,2)
      
-    with open('results/csvmaps/mapsLTS/mean_map'+'.csv', 'wb') as csvfile:
+    with open('results/csvmaps/mapsT/mean_map'+'.csv', 'wb') as csvfile:
         mywriter = csv.writer(csvfile)
         for row in range(len(mean_data)):
             mywriter.writerow(mean_data[row])
@@ -146,8 +148,8 @@ def mean_maps(nb_runs,filename):
 # using the function...
 factor = 100
 #plot_map(reader, factor)
-std = mean_maps(8,'csvmaps/mapsLTS/map.2')
-reader = csv.reader( open('results/csvmaps/mapsLTS/mean_map.csv', 'rb') )
+std = mean_maps(8,'csvmaps/mapsT/map')
+reader = csv.reader( open('results/csvmaps/mapsT/mean_map.csv', 'rb') )
 plot_var_map(reader,std,factor)
-reader = csv.reader( open('results/csvmaps/mapsLTS/mean_map.csv', 'rb') )
+reader = csv.reader( open('results/csvmaps/mapsT/mean_map.csv', 'rb') )
 plot_map(reader)
