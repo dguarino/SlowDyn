@@ -38,7 +38,8 @@ from pyNN.utility.plotting import Figure, Panel
 import matplotlib.pyplot as plot
 from datetime import datetime
 from matplotlib import mlab
-
+from neo.core import AnalogSignalArray
+import quantities as pq
 
 def build_network(Params):
     setup( timestep=Params['dt'])
@@ -125,7 +126,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
     for popKey,popVal in params['Populations'].iteritems():
         if popKey != 'ext':
             populations[popKey] = params['Recorders'][popKey].keys()
-            print popKey, populations[popKey]
 
     score = {}
     ratio = None
@@ -152,6 +152,8 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         panels = []
         if 'v' in rec:
             vm = data.filter(name = 'v')[0]
+            print vm
+            print type(vm)
             panels.append( Panel(vm, ylabel="Membrane potential (mV)", xlabel="Time (ms)", xticks=True, yticks=True, legend=None) )
             # Vm histogram
             fig = plot.figure()
@@ -199,6 +201,20 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             plot.ylim([.0,1.])
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
+        
+        if params['Injections']:
+            amplitude = np.array([0.]+params['Injections']['LTS']['amplitude']+[0.])#[0.,-.25, 0.0, .25, 0.0, 0.]
+            start = np.array([0.]+params['Injections']['LTS']['start']+[params['run_time']])/params['dt']
+            current = np.array([])
+
+            for i in range(1,len(amplitude)):
+                if current.shape == (0,):
+                    current = np.ones((start[i]-start[i-1]+1,1))*amplitude[i-1]
+                else:
+                    current = np.concatenate((current,np.ones((start[i]-start[i-1],1))*amplitude[i-1]),0)
+            current = AnalogSignalArray(current, units = 'mA',sampling_rate = params['dt']*pq.Hz)
+            current.channel_index = np.array([0])
+            panels.append( Panel(current,ylabel = "Current injection (mA)",xlabel="Time (ms)", xticks=True, legend=None) )
 
         Figure( *panels ).save(folder+'/'+key+addon+".png")
 
