@@ -20,6 +20,7 @@ def plot_map( csvfile, factor=100 ):
     area = np.zeros(combinations)
     colors = np.zeros(combinations)
     marks = ['o' for i in range(combinations)]
+    alpha = np.zeros(combinations)
 
     i = 0
     for row in data:
@@ -27,15 +28,15 @@ def plot_map( csvfile, factor=100 ):
         #for col in row:
             pair = eval(col)
             colors[i] = float(pair[1]) # color for freq
-            print "freq",colors[i]
             size = float(pair[0]) # size for ratio
+            alpha[i] = nb_elts[i//std.shape[0],i%std.shape[0]]/nb_runs
             # size for ratio
             # we want to be able to see whether the ratio is towards short-up, equal, or long-up
             if 0 < size < 0.5:
                 size = 1. - size
                 marks[i] = 's' # but we change their marker to diversify
             area[i] = size * factor
-          
+    
             i=i+1
 
     # normalize colors for matplotlib
@@ -49,9 +50,8 @@ def plot_map( csvfile, factor=100 ):
     plot.xticks(p1, rotation='vertical')
     plot.yticks(p2)
     #plot.xlim([.0000001,.1]) # TODO: remove!!!! hack just to plot the TC param search
-    for x,y,a,c,m in zip(axis1,axis2,area,colors,marks):
-        #print x,y,a,c
-        plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none')
+    for x,y,a,c,m,t in zip(axis1,axis2,area,colors,marks,alpha):
+        plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none',alpha =t )
     cbar = plot.colorbar(mapper)
     cbar.ax.set_ylabel('largest frequency', rotation=270)
     plot.tick_params(axis='both', which='major', labelsize=8)
@@ -61,7 +61,7 @@ def plot_map( csvfile, factor=100 ):
     fig.clear()
 
 
-def plot_var_map( csvfile, std, factor = 100):
+def plot_var_map( csvfile, std = 0, factor = 100):
     data = list(csvfile)
     print "file read"
     header1 = data.pop(0)[0]
@@ -76,14 +76,21 @@ def plot_var_map( csvfile, std, factor = 100):
     area = np.zeros(combinations)
     colors = np.zeros(combinations)
     marks = ['o' for i in range(combinations)]
+    alpha = np.zeros(combinations)
+
     i = 0
     for row in data:
         for col in row[:-1]:
             pair = eval(col)
             colors[i] = float(pair[1]) # color for f
-            size = std[i//std.shape[0],i%std.shape[0]] # size for std
-            # size for ratio
-            # we want to be able to see whether the ratio is towards short-up, equal, or long-up
+            print colors[i]
+            if isinstance(std,int):
+                size = 1
+                alpha[i] = 1
+            else:
+                size = std[i//std.shape[0],i%std.shape[0]] # size for std
+                alpha[i] = 1#nb_elts[i//std.shape[0],i%std.shape[0]]/nb_runs
+                print alpha[i], size
             area[i] = size * factor
             i=i+1
 
@@ -92,16 +99,15 @@ def plot_var_map( csvfile, std, factor = 100):
     norm = ml.colors.Normalize(vmin=min(colors), vmax=max(colors), clip=True)
     mapper = ml.cm.ScalarMappable(norm=norm, cmap=plot.cm.jet)
     mapper._A = [] # hack to plot the colorbar http://stackoverflow.com/questions/8342549/matplotlib-add-colorbar-to-a-sequence-of-line-plots
-    #mapper.set_clim(vmin = 0.,vmax = 20.)
+    mapper.set_clim(vmin = 0.,vmax = 20.)
     plot.xlabel(text1)
     plot.ylabel(text2)
     plot.xticks(p1, rotation='vertical')
     plot.yticks(p2)
     plot.yticks([3.])
     #plot.xlim([.0000001,.1]) # TODO: remove!!!! hack just to plot the TC param search
-    for x,y,a,c,m in zip(axis1,axis2,area,colors,marks):
-        #print x,y,a,c
-        plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none')
+    for x,y,a,c,m,t in zip(axis1,axis2,area,colors,marks,alpha):
+        plot.scatter( x, y, s=a, c=mapper.to_rgba(c), marker=m, edgecolors='none',alpha=t)
     cbar = plot.colorbar(mapper)
     cbar.ax.set_ylabel('largest frequency', rotation=270)
     plot.tick_params(axis='both', which='major', labelsize=8)
@@ -116,40 +122,47 @@ def mean_maps(nb_runs,filename):
         print run
         reader = csv.reader( open('results/' + filename+'-'+str(run)+'.csv', 'rb') )
         data = list(reader)
-        print len(data)
+        local_data = np.array([data[i] for i in range(2,len(data))])
         if run == 0:
             mean_data = data
-        local_data = np.array([data[i] for i in range(2,len(data))])
-        print local_data.shape
-        fqcy = np.zeros((local_data.shape[0],local_data.shape[1],params['nb_runs']))
+            fqcy = np.zeros((local_data.shape[0],local_data.shape[1],params['nb_runs']))
+            nb_elts = np.zeros(local_data.shape)
         for i in range(len(local_data)):
             for j in range(len(local_data[i])):
                 if run == 0:
-                    mean_data[i+2][j] = np.array(eval(local_data[i][j]))
+                    mean_data[i+2][j] = np.array(eval(local_data[i][j]))#* (np.array(eval(local_data[i][j]))[0]!=0)        
                 else:
-                    mean_data[i+2][j] = mean_data[i+2][j] + np.array(eval(local_data[i][j]))
+                    #average only on the ones that don't die out
+                    mean_data[i+2][j] = mean_data[i+2][j] + np.array(eval(local_data[i][j]))#* (np.array(eval(local_data[i][j]))[0]!=0)
+                nb_elts[i,j] = nb_elts[i,j] + (np.array(eval(local_data[i][j]))[0]!=0)
+                print "nb_elts",nb_elts
                 fqcy[i,j,run] = np.array(eval(local_data[i][j]))[1]
+        print np.array(eval(local_data[2][3]))[1]
+    print fqcy[2,3,:]
     
     for i in range(len(local_data)):
          for j in range(len(local_data[i])):
+             #mean_data[i+2][j] = (mean_data[i+2][j]/max(nb_elts[i,j],1)).tolist()
              mean_data[i+2][j] = (mean_data[i+2][j]/nb_runs).tolist()
     print "mean",np.mean([np.mean(mean_data[i]) for i in range(2,len(data))]), "std",np.std([np.std(mean_data[i]) for i in range(2,len(data))])
     std = np.std(fqcy,2)
+    print std[2,3]
      
-    with open('results/csvmaps/mapsT/mean_map'+'.csv', 'wb') as csvfile:
+    with open('results/csvmaps/mapsThalamus/mean_map'+'.csv', 'wb') as csvfile:
         mywriter = csv.writer(csvfile)
         for row in range(len(mean_data)):
             mywriter.writerow(mean_data[row])
 
-    return std
+    return std, nb_elts
 
 
 
 # using the function...
 factor = 100
+nb_runs = 8
 #plot_map(reader, factor)
-std = mean_maps(8,'csvmaps/mapsT/map')
-reader = csv.reader( open('results/csvmaps/mapsT/mean_map.csv', 'rb') )
+std,nb_elts = mean_maps(nb_runs,'csvmaps/mapsThalamus/mapR')
+reader = csv.reader( open('results/csvmaps/mapsThalamus/mean_map.csv', 'rb') )
 plot_var_map(reader,std,factor)
-reader = csv.reader( open('results/csvmaps/mapsT/mean_map.csv', 'rb') )
+reader = csv.reader( open('results/csvmaps/mapsThalamus/mapR.csv', 'rb') )
 plot_map(reader)

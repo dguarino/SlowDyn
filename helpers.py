@@ -38,7 +38,8 @@ from pyNN.utility.plotting import Figure, Panel
 import matplotlib.pyplot as plot
 from datetime import datetime
 from matplotlib import mlab
-
+from neo.core import AnalogSignalArray
+import quantities as pq
 
 def build_network(Params):
     setup( timestep=Params['dt'])
@@ -125,7 +126,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
     for popKey,popVal in params['Populations'].iteritems():
         if popKey != 'ext':
             populations[popKey] = params['Recorders'][popKey].keys()
-            print popKey, populations[popKey]
 
     score = {}
     ratio = None
@@ -152,6 +152,8 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         panels = []
         if 'v' in rec:
             vm = data.filter(name = 'v')[0]
+            print vm
+            print type(vm)
             panels.append( Panel(vm, ylabel="Membrane potential (mV)", xlabel="Time (ms)", xticks=True, yticks=True, legend=None) )
             # Vm histogram
             fig = plot.figure()
@@ -177,31 +179,45 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fig = plot.figure(56)
 
             clr = 'black'
-            if key == 'tc':
-                threshold = 0.25#np.max(fr)/2
-                crossings = np.where(fr > threshold)[0]
-                ups = []
+
+            if key == 're':
+                #threshold = 0.25#np.max(fr)/2
+                #crossings = np.where(fr > threshold)[0]
+                #ups = []
                 # group the up bins by their duration (consecutive indexes together)
-                for group in np.split(crossings, np.where(np.diff(crossings)!=1)[0]+1):
-                    if len(group) > minlen:
-                        ups.append(group)
-		if ups:
-	            uptimes = np.concatenate(ups)
-		else:
-		    uptimes = []
-                uppoints = np.ones(len(uptimes)) * threshold
-                plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
-                ratio = len(uptimes) / (len(fr)-len(uptimes))
-                cut_value = max(len(data.spiketrains[0])/(bin_size),50)
+                #for group in np.split(crossings, np.where(np.diff(crossings)!=1)[0]+1):
+                #    if len(group) > minlen:
+                #        ups.append(group)
+                #uptimes = np.concatenate(ups)
+                #uppoints = np.ones(len(uptimes)) * threshold
+                #plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
+                #ratio = len(uptimes) / (len(fr)-len(uptimes))
+                #cut_value = max(len(data.spiketrains[0])/(bin_size),50)
+
                 dies = sum(fr[-cut_value:-1]) < 0.05
                 if dies:
                     ratio = 0.
-                print "ratio:",ratio
-                clr = str(ratio)
+                else:
+                    ratio = 1.
+                    clr = str(ratio)
             plot.plot(fr,color=clr,linewidth=2)
             plot.ylim([.0,1.])
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
             fig.clear()
+        
+        if params['Injections']:
+            amplitude = np.array([0.]+params['Injections']['LTS']['amplitude']+[0.])#[0.,-.25, 0.0, .25, 0.0, 0.]
+            start = np.array([0.]+params['Injections']['LTS']['start']+[params['run_time']])/params['dt']
+            current = np.array([])
+
+            for i in range(1,len(amplitude)):
+                if current.shape == (0,):
+                    current = np.ones((start[i]-start[i-1]+1,1))*amplitude[i-1]
+                else:
+                    current = np.concatenate((current,np.ones((start[i]-start[i-1],1))*amplitude[i-1]),0)
+            current = AnalogSignalArray(current, units = 'mA',sampling_rate = params['dt']*pq.Hz)
+            current.channel_index = np.array([0])
+            panels.append( Panel(current,ylabel = "Current injection (mA)",xlabel="Time (ms)", xticks=True, legend=None) )
 
         Figure( *panels ).save(folder+'/'+key+addon+".png")
 
