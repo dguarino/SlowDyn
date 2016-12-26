@@ -180,23 +180,24 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
 
             clr = 'black'
             if key == 're':
-                threshold = 0.25#np.max(fr)/2
-                crossings = np.where(fr > threshold)[0]
-                ups = []
+                #threshold = 0.25#np.max(fr)/2
+                #crossings = np.where(fr > threshold)[0]
+                #ups = []
                 # group the up bins by their duration (consecutive indexes together)
-                for group in np.split(crossings, np.where(np.diff(crossings)!=1)[0]+1):
-                    if len(group) > minlen:
-                        ups.append(group)
-                uptimes = np.concatenate(ups)
-                uppoints = np.ones(len(uptimes)) * threshold
-                plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
-                ratio = len(uptimes) / (len(fr)-len(uptimes))
-                cut_value = max(len(data.spiketrains[0])/(bin_size),50)
+                #for group in np.split(crossings, np.where(np.diff(crossings)!=1)[0]+1):
+                #    if len(group) > minlen:
+                #        ups.append(group)
+                #uptimes = np.concatenate(ups)
+                #uppoints = np.ones(len(uptimes)) * threshold
+                #plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
+                #ratio = len(uptimes) / (len(fr)-len(uptimes))
+                #cut_value = max(len(data.spiketrains[0])/(bin_size),50)
                 dies = sum(fr[-cut_value:-1]) < 0.05
                 if dies:
                     ratio = 0.
-                print "ratio:",ratio
-                clr = str(ratio)
+                else:
+                    ratio = 1.
+                    clr = str(ratio)
             plot.plot(fr,color=clr,linewidth=2)
             plot.ylim([.0,1.])
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
