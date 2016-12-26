@@ -177,7 +177,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fig = plot.figure(56)
 
             clr = 'black'
-            if key == 're':
+            if key == 'tc':
                 threshold = 0.25#np.max(fr)/2
                 crossings = np.where(fr > threshold)[0]
                 ups = []
@@ -185,7 +185,10 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
                 for group in np.split(crossings, np.where(np.diff(crossings)!=1)[0]+1):
                     if len(group) > minlen:
                         ups.append(group)
-                uptimes = np.concatenate(ups)
+		if ups:
+	            uptimes = np.concatenate(ups)
+		else:
+		    uptimes = []
                 uppoints = np.ones(len(uptimes)) * threshold
                 plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
                 ratio = len(uptimes) / (len(fr)-len(uptimes))
