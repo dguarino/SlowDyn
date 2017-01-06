@@ -49,9 +49,50 @@ def getValue(dic, keys):
 
 
 
+#sim, opts = get_simulator(
+#        ("--analysis", "Perform analysis only", {"type":bool}),
+#        ("--remove", "Remove data files (after analysis)", {"type":bool}),
+#        ("--folder", "Folder to save the data in (created if it does not exists)", {"dest":"data_folder", "required":True}),
+#        ("--params", "Parameter filename", {"dest":"param_file", "required":True}),
+#        ("--search", "Parameter search filename", {"dest":"search_file"}),
+#        ("--map",    "Produce a map of 2D parameter search", {"type":bool}),
+#        ("--debug", "Print debugging information")
+#    )
+
+#if opts.debug:
+#    init_logging(None, debug=True)
+
+#if opts.analysis:
+#    print "Running analysis and plotting only ..."
+
+#if opts.remove:
+#    print "Removing data files after analysis ..."
+
+#if opts.data_folder:
+#    print "Data will be saved in:", opts.data_folder
+
+#params = {}
+#if opts.param_file != '':
+#    print "Using parameter file:", opts.param_file
+#    with open(opts.param_file, 'r') as pfile:
+#        pstring = pfile.read()
+#        params = eval(pstring)
+#else:
+#    print "ERROR: you must specify a parameter file!"
+#    sys.exit(2)
+
+#search = {}
+#if opts.search_file:
+#    print "Executing parameter search using file:", opts.search_file
+#    with open(opts.search_file, 'r') as sfile:
+#        sstring = sfile.read()
+#        search = eval(sstring)
+
+
+
 # ------------------------------------------------------------------------------
 usage_str = 'usage: run.py [-a] [-r] -f<data folder> -p<param file> [-s<search file>]'
-doAnalaysisOnly = False
+doAnalysisOnly = False
 doParameterSearch = False
 removeDataFile = False
 data_folder = 'results'
@@ -71,7 +112,7 @@ for opt, arg in opts:
         sys.exit()
     elif opt == '-a':
         print "Running analysis and plotting only ..."
-        doAnalaysisOnly=True
+        doAnalysisOnly=True
     elif opt == '-r':
         print "Removing data files after analysis ..."
         removeDataFile=True
@@ -120,7 +161,7 @@ for run in range(external.params['nb_runs']):
             os.makedirs(data_folder+str(run))
         shutil.copy('./'+params_filename+'.py', data_folder+ str(run)+'/'+params_filename+'_'+str(comb)+'.py')
 
-        if not doAnalaysisOnly:
+        if not doAnalysisOnly:
             already_computed = 0
             for pop in external.params['Populations'].keys():
                 if os.path.exists(data_folder + str(run) +'/'+pop+str(comb)+'.pkl'):
@@ -140,36 +181,39 @@ for run in range(external.params['nb_runs']):
                 for pop in external.params['Populations'].keys():
                     if os.path.exists(data_folder + str(run) +'/'+pop+str(comb)+'.png'):
                         already_computed = already_computed + 1
-                if already_computed >= len(external.params['Populations']) - 1:
+                if already_computed > len(external.params['Populations']) - 1:
                     print "already analysed"
                 else:
                     ratio,fqcy,psd,freq, fqcy_ratio = h.analyse(external.params, data_folder + str(run), str(comb), removeDataFile)
                     print "ratio",ratio,"fqcy",fqcy,"psd",psd,"freq",freq
-
-                    if i == 0:
-                        with open(data_folder+ str(run)+'/map'+'.csv', 'wb') as csvfile:
-                            mywriter = csv.writer(csvfile)
-                            mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
-                            mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
-
-                        with open(data_folder+ str(run)+'/psdmap'+'.csv', 'wb') as csvfile:
-                            mywriter = csv.writer(csvfile)
-                            mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
-                            mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
-                            mywriter.writerow(freq)
-
-                    if ratio!=None and fqcy!=None:
-                        print "appending to map",ratio,fqcy
-                        info.append([ratio,fqcy,fqcy_ratio])
-                        if (i+1)%len(search.params[testParams[1]]) == 0:
-                            with open(data_folder+str(run)+'/map'+'.csv', 'a') as csvfile:
+                    
+                    gen = (pop for pop in external.params['Populations'].keys() if pop != 'ext')
+                    for pop in gen:
+                        if i == 0:
+                            with open(data_folder+ str(run)+'/map-'+pop+'.csv', 'wb') as csvfile:
                                 mywriter = csv.writer(csvfile)
-                                mywriter.writerow(info)
-                                info = []
-                    if psd != None and freq != None:
-                        with open(data_folder+str(run)+'/psdmap'+'.csv', 'a') as csvfile:
-                            mywriter = csv.writer(csvfile)
-                            mywriter.writerow(psd)
+                                mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
+                                mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
+
+                            with open(data_folder+ str(run)+'/psdmap-'+pop+'.csv', 'wb') as csvfile:
+                                mywriter = csv.writer(csvfile)
+                                mywriter.writerow( ['#'+str(testParams[1])+ ':' +str(search.params[testParams[1]]) ] )
+                                mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search.params[testParams[0]]) ] )
+                                if pop in freq:
+                                    mywriter.writerow(freq[pop])
+
+                        if pop in ratio and pop in fqcy:
+                            print "appending to map",ratio,fqcy
+                            info.append([ratio[pop],fqcy[pop],fqcy_ratio[pop]])
+                            if (i+1)%len(search.params[testParams[1]]) == 0:
+                                with open(data_folder+str(run)+'/map-'+pop+'.csv', 'a') as csvfile:
+                                    mywriter = csv.writer(csvfile)
+                                    mywriter.writerow(info)
+                                    info = []
+                        if pop in psd:
+                            with open(data_folder+str(run)+'/psdmap-'+pop+'.csv', 'a') as csvfile:
+                                mywriter = csv.writer(csvfile)
+                                mywriter.writerow(psd[pop])
 
             else:
                 h.analyse(external.params, data_folder+str(run), str(comb), removeDataFile)

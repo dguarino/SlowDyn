@@ -128,21 +128,23 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             populations[popKey] = params['Recorders'][popKey].keys()
 
     score = {}
-    ratio = None
-    fqcy = None
-    psd = None
-    freqs_psd = None
-    fqcy_ratio = None
+    ratio = {}
+    fqcy = {}
+    psd = {}
+    freqs_psd = {}
+    fqcy_ratio = {}
+
 
     # default results name folder
-    if folder=='results':
+    if folder == 'results':
         dt = datetime.now()
         date = dt.strftime("%d-%m-%I-%M")
         folder = folder+'/'+date
 
     # iteration over populations and selctive plotting based on available recorders
-    for key,rec in populations.iteritems():
-
+    gen = ([key,rec] for key,rec in populations.iteritems() if key != 'ext')
+    for key,rec in gen:
+        print key
         #if os.path.exists(os.getcwd()+"/"+folder+'/'+key+addon+".png"):
         #    print "skipping", key+addon, "(already existing)"
         #    continue
@@ -152,8 +154,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         panels = []
         if 'v' in rec:
             vm = data.filter(name = 'v')[0]
-            print vm
-            print type(vm)
             panels.append( Panel(vm, ylabel="Membrane potential (mV)", xlabel="Time (ms)", xticks=True, yticks=True, legend=None) )
             # Vm histogram
             fig = plot.figure()
@@ -180,26 +180,24 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
 
             clr = 'black'
 
-            if key == 're':
-                #threshold = 0.25#np.max(fr)/2
-                #crossings = np.where(fr > threshold)[0]
-                #ups = []
-                # group the up bins by their duration (consecutive indexes together)
-                #for group in np.split(crossings, np.where(np.diff(crossings)!=1)[0]+1):
-                #    if len(group) > minlen:
-                #        ups.append(group)
-                #uptimes = np.concatenate(ups)
-                #uppoints = np.ones(len(uptimes)) * threshold
-                #plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
-                #ratio = len(uptimes) / (len(fr)-len(uptimes))
-                #cut_value = max(len(data.spiketrains[0])/(bin_size),50)
-
-                dies = sum(fr[-cut_value:-1]) < 0.05
-                if dies:
-                    ratio = 0.
-                else:
-                    ratio = 1.
-                    clr = str(ratio)
+            #threshold = 0.25#np.max(fr)/2
+            #crossings = np.where(fr > threshold)[0]
+            #ups = []
+            # group the up bins by their duration (consecutive indexes together)
+            #for group in np.split(crossings, np.where(np.diff(crossings)!=1)[0]+1):
+            #    if len(group) > minlen:
+            #        ups.append(group)
+            #uptimes = np.concatenate(ups)
+            #uppoints = np.ones(len(uptimes)) * threshold
+            #plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
+            #ratio = len(uptimes) / (len(fr)-len(uptimes))
+            cut_value = max(len(data.spiketrains[0])/(bin_size),50)
+            dies = sum(fr[-cut_value:-1]) < 0.05
+            if dies:
+                ratio[key] = 0.
+            else:
+                ratio[key] = 1.
+            clr = str(ratio[key])
             plot.plot(fr,color=clr,linewidth=2)
             plot.ylim([.0,1.])
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
@@ -227,21 +225,19 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             lfp = lfp - np.mean(lfp)
             fe = 1/params['dt']*1000
             #spectrum,freq,t = mlab.specgram(lfp, NFFT=len(lfp),Fs = fe )
-            psd,freqs_psd = mlab.psd(lfp, Fs = fe, NFFT=int(len(lfp)/4))
-            x = [freqs_psd[i] for i in range(len(freqs_psd)) if freqs_psd[i]<30.]
-            argm = np.argmax(abs(psd))
-            fqcy = freqs_psd[argm]
-            print "argm",argm,"fqcy",fqcy
+            psd[key],freqs_psd[key] = mlab.psd(lfp, Fs = fe, NFFT=int(len(lfp)/4))
+            x = [freqs_psd[key][i] for i in range(len(freqs_psd[key])) if freqs_psd[key][i]<30.]
+            argm = np.argmax(abs(psd[key]))
+            fqcy[key] = freqs_psd[key][argm]
             N = len(lfp)
             t = np.arange(0.,N)/fe
-
-            fqcy_ratio = compute_fqcyratio(psd,freqs_psd)
+            fqcy_ratio[key] = compute_fqcyratio(psd[key],freqs_psd[key])
 
             fig = plot.figure(2)
             plot.subplot(2,1,1)
             plot.plot(t,lfp)
             plot.subplot(2,1,2)
-            plot.plot(x,psd[0:len(x)])
+            plot.plot(x,psd[key][0:len(x)])
             #plot.legend('Fourier','psd')
             fig.savefig(folder+'/LFP_'+key+addon+'.png')
             fig.clear()
