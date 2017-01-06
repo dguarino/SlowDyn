@@ -63,17 +63,16 @@ def mean_psdmaps(nb_runs,filename):
     for run in range(nb_runs):
         reader = csv.reader( open('results/' + filename+'-'+str(run)+'.csv', 'rb') )
         org_data = list(reader)
-        local_data = np.array([map(float,org_data[i]) for i in range(2,len(org_data))])
+        local_data = np.array([map(float,org_data[i]) for i in range(3,len(org_data))])
         if run == 0:
             data = local_data
             print run
         else:
-            data[3:,:] = data[3:,:] + local_data[3:,:]
+            data = data + local_data
             print run
-    
             
     data[3:,:] /= nb_runs
-    with open('results/csvmaps/mapsLTS/mean_psd'+'.csv', 'wb') as csvfile:
+    with open('results/csvmaps/mapscombinations/down/mean_psd'+'.csv', 'wb') as csvfile:
         mywriter = csv.writer(csvfile)
         mywriter.writerow(org_data[0])
         mywriter.writerow(org_data[1])
@@ -81,26 +80,26 @@ def mean_psdmaps(nb_runs,filename):
             mywriter.writerow(data[row,:])
 
     x = [freqs[i] for i in range(len(freqs)) if freqs[i]<10]
-    mean_psd = np.mean(data[3:,:len(x)],0)
+    mean_psd = np.mean(data[:,:len(x)],0)
     fig = plot.figure()
-    for index in range(3,data.shape[0]):
+    for index in range(data.shape[0]):
         plot.plot(x, data[index,:len(x)],'b')
     plot.plot(x,mean_psd[:len(x)],'m')
     plot.xlabel('Frequency')
-    plot.ylim(ymax=2e-8)
+    #plot.ylim(ymax=2e-8)
     plot.savefig('mean_psd.png')
 
 
     return mean_psd        
 
 
-reader = csv.reader( open('results/csvmaps/mapsThalamus/psdmap.2-1.csv', 'rb') )
+reader = csv.reader( open('results/csvmaps/mapscombinations/down/psdmap-1.csv', 'rb') )
 data = list(reader)
 freqs = map(float,data[2])
-mean_psd = mean_psdmaps(8,'csvmaps/maps/psdmap.2')
-reader = csv.reader( open('results/csvmaps/mapsLTS/mean_psd.csv', 'rb') )
+mean_psd = mean_psdmaps(8,'csvmaps/mapscombinations/down/psdmap')
+reader = csv.reader( open('results/csvmaps/mapscombinations/down/mean_psd.csv', 'rb') )
 psd_map(reader,axis=1)
-reader = csv.reader( open('results/csvmaps/mapsLTS/mean_psd.csv', 'rb') )
+reader = csv.reader( open('results/csvmaps/mapscombinations/down/mean_psd.csv', 'rb') )
 psd_map(reader,axis=0)
 
 
