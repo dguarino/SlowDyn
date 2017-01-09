@@ -152,8 +152,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         panels = []
         if 'v' in rec:
             vm = data.filter(name = 'v')[0]
-            print vm
-            print type(vm)
             panels.append( Panel(vm, ylabel="Membrane potential (mV)", xlabel="Time (ms)", xticks=True, yticks=True, legend=None) )
             # Vm histogram
             fig = plot.figure()
@@ -192,8 +190,8 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
                 #uppoints = np.ones(len(uptimes)) * threshold
                 #plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
                 #ratio = len(uptimes) / (len(fr)-len(uptimes))
-                #cut_value = max(len(data.spiketrains[0])/(bin_size),50)
 
+                cut_value = max(len(data.spiketrains[0])/(bin_size),50)
                 dies = sum(fr[-cut_value:-1]) < 0.05
                 if dies:
                     ratio = 0.
@@ -231,7 +229,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             x = [freqs_psd[i] for i in range(len(freqs_psd)) if freqs_psd[i]<30.]
             argm = np.argmax(abs(psd))
             fqcy = freqs_psd[argm]
-            print "argm",argm,"fqcy",fqcy
             N = len(lfp)
             t = np.arange(0.,N)/fe
 

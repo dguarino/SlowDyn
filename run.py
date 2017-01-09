@@ -140,7 +140,7 @@ for run in range(external.params['nb_runs']):
                 for pop in external.params['Populations'].keys():
                     if os.path.exists(data_folder + str(run) +'/'+pop+str(comb)+'.png'):
                         already_computed = already_computed + 1
-                if already_computed >= len(external.params['Populations']) - 1:
+                if already_computed > len(external.params['Populations']) - 1:
                     print "already analysed"
                 else:
                     ratio,fqcy,psd,freq, fqcy_ratio = h.analyse(external.params, data_folder + str(run), str(comb), removeDataFile)
