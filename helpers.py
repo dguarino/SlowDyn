@@ -144,7 +144,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
     # iteration over populations and selctive plotting based on available recorders
     gen = ([key,rec] for key,rec in populations.iteritems() if key != 'ext')
     for key,rec in gen:
-        print key
         #if os.path.exists(os.getcwd()+"/"+folder+'/'+key+addon+".png"):
         #    print "skipping", key+addon, "(already existing)"
         #    continue
@@ -198,6 +197,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             else:
                 ratio[key] = 1.
             clr = str(ratio[key])
+
             plot.plot(fr,color=clr,linewidth=2)
             plot.ylim([.0,1.])
             fig.savefig(folder+'/firingrate_'+key+addon+'.png')
@@ -229,6 +229,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             x = [freqs_psd[key][i] for i in range(len(freqs_psd[key])) if freqs_psd[key][i]<30.]
             argm = np.argmax(abs(psd[key]))
             fqcy[key] = freqs_psd[key][argm]
+
             N = len(lfp)
             t = np.arange(0.,N)/fe
             fqcy_ratio[key] = compute_fqcyratio(psd[key],freqs_psd[key])
