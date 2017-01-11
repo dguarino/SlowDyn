@@ -21,7 +21,7 @@ class SetInput(object):
         self.populations = populations
         self.dt = dt
 
-    def rythm(self, t, eeg):
+    def closed_loop(self, t, eeg):
         # use the eeg interval (N ms) to compute the input
 
         ## Proposta di struttura 
@@ -37,6 +37,15 @@ class SetInput(object):
             else: 
                 spike_times = 0
         return spike_times
+    
+    def open_loop(self, t, eeg):
+        
+        if t % 1000 == 0:
+            spike_times = [t+1,t+2,t+3]
+        else:
+            spike_times = 0
+
+    return spike_times
 
     def __call__(self, t):
         try:
@@ -69,7 +78,7 @@ class SetInput(object):
                 # - Bartosz (personal communication)
                 print lfp
             # LFP into rythm_func
-            spike_times = self.rythm(t,lfp)
+            spike_times = self.open_loop(t,lfp)
             self.populations['audio'].set(spike_times=spike_times)
         except StopIteration:
             pass

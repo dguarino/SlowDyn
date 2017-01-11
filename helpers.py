@@ -220,7 +220,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         Figure( *panels ).save(folder+'/'+key+addon+".png")
 
         # LFP
-        if 'v' in rec and 'gsyn_exc' in rec:
+        if 'v' in rec and ('gsyn_exc' in rec or 'gsyn_inh' in rec):
             lfp = compute_LFP(data)
             lfp = lfp - np.mean(lfp)
             fe = 1/params['dt']*1000
@@ -270,11 +270,12 @@ def compute_fqcyratio(psd,freqs_psd):
 
 def compute_LFP(data):
       v = data.filter(name="v")[0]
-      g = data.filter(name="gsyn_exc")[0]
+      g_exc = data.filter(name="gsyn_exc")[0]
+      g_inh = data.filter(name="gsyn_inh")[0]
       # We produce the current for each cell for this time interval, with the Ohm law:
       # I = g(V-E), where E is the equilibrium for exc, which usually is 0.0 (we can change it)
       # (and we also have to consider inhibitory condictances)
-      i = g*(v) #AMPA
+      i = (g_exc + g_syn) * v #AMPA
       # the LFP is the result of cells' currents
       avg_i_by_t = numpy.sum(i,axis=1)/i.shape[0] #
       sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
