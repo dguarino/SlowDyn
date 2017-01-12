@@ -276,7 +276,7 @@ def compute_LFP(data):
       # We produce the current for each cell for this time interval, with the Ohm law:
       # I = g(V-E), where E is the equilibrium for exc, which usually is 0.0 (we can change it)
       # (and we also have to consider inhibitory condictances)
-      i = (g_exc + g_syn) * v #AMPA
+      i = (g_exc + g_inh) * v #AMPA
       # the LFP is the result of cells' currents
       avg_i_by_t = numpy.sum(i,axis=1)/i.shape[0] #
       sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf

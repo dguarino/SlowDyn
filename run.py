@@ -95,7 +95,7 @@ usage_str = 'usage: run.py [-a] [-r] -f<data folder> -p<param file> [-s<search f
 doAnalysisOnly = False
 doParameterSearch = False
 removeDataFile = False
-data_folder = 'results'
+data_folder = 'results/both-bis'
 params_filename = ''
 
 try:
