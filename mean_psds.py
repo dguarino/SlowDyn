@@ -33,7 +33,7 @@ data = list(reader)
 freqs = map(float,data[2])
 
 conds = ['down','up','both']
-pops = ['py','tc','re']
+pops = ['py','inh','tc','re']
 colors = ['r','g','b']
 
 
@@ -46,7 +46,7 @@ for pop in pops:
         x,mean_psd = mean_psdmaps(8,path)
         plot.plot(x,mean_psd[:len(x)],color,label=cond)
     plot.xlabel('Frequency')
-    plot.ylim(ymax=2e-8)
+    plot.ylim(ymax=9e-7)
     plot.legend()
     plot.savefig('mean_psd'+pop+'.png')
     fig.clear()
