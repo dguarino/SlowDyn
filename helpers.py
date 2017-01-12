@@ -31,9 +31,9 @@ import numpy as np
 import random as rd
 import os
 import scipy.io
-from pyNN.nest import *
 from pyNN.utility import Timer
 import pickle
+import numpy
 from pyNN.utility.plotting import Figure, Panel
 import matplotlib.pyplot as plot
 from datetime import datetime
@@ -41,20 +41,20 @@ from matplotlib import mlab
 from neo.core import AnalogSignalArray
 import quantities as pq
 
-def build_network(Params):
-    setup( timestep=Params['dt'])
+def build_network(sim, Params):
+    sim.setup( timestep=Params['dt'])
 
     Populations = {}
     for popKey,popVal in Params['Populations'].iteritems():
         if isinstance(popVal['n'],dict):
             number = int(Params['Populations'][popVal['n']['ref']]['n'] * popVal['n']['ratio'])
-            Populations[popKey] = Population( number, popVal['type'], cellparams=popVal['cellparams'] )
+            Populations[popKey] = sim.Population( number, popVal['type'], cellparams=popVal['cellparams'] )
         else:
-            Populations[popKey] = Population( popVal['n'], popVal['type'], cellparams=popVal['cellparams'] )
+            Populations[popKey] = sim.Population( popVal['n'], popVal['type'], cellparams=popVal['cellparams'] )
 
     Projections = {}
     for projKey,projVal in Params['Projections'].iteritems():
-        Projections[projKey] = Projection(
+        Projections[projKey] = sim.Projection(
             Populations[ projVal['source'] ],
             Populations[ projVal['target'] ],
             connector = projVal['connector'],
@@ -101,11 +101,11 @@ def record_data(Params, Populations):
                 Populations[recPop][elVal['start']:elVal['end']].record( elKey )
 
 
-def run_simulation(Params):
+def run_simulation(sim,Params):
     print "Running Network"
     timer = Timer()
     timer.reset()
-    run(Params['run_time'])
+    sim.run(Params['run_time'])
     simCPUtime = timer.elapsedTime()
     print "Simulation Time: %s" % str(simCPUtime)
 
