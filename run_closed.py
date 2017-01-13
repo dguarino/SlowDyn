@@ -255,6 +255,5 @@ for run in range(params['nb_runs']):
 
 #h.run_simulation(external.params)
 
-h.save_data(Populations)
 
 sim.end()
