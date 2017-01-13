@@ -94,6 +94,7 @@ if opts.search_file:
 
 
 # ------------------------------------------------------------------------------
+
 #usage_str = 'usage: run.py [-a] [-r] -f<data folder> -p<param file> [-s<search file>]'
 #doAnalysisOnly = False
 #doParameterSearch = False
