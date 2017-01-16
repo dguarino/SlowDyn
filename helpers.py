@@ -142,7 +142,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         folder = folder+'/'+date
 
     # iteration over populations and selctive plotting based on available recorders
-    gen = ([key,rec] for key,rec in populations.iteritems() if key != 'ext')
+    gen = ([key,rec] for key,rec in populations.iteritems() if key != 'ext' and key != 'audio')
     for key,rec in gen:
         #if os.path.exists(os.getcwd()+"/"+folder+'/'+key+addon+".png"):
         #    print "skipping", key+addon, "(already existing)"
@@ -190,7 +190,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             #uppoints = np.ones(len(uptimes)) * threshold
             #plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
             #ratio = len(uptimes) / (len(fr)-len(uptimes))
-            cut_value = max(len(data.spiketrains[0])/(bin_size),50)
+            cut_value = int(max(len(data.spiketrains[0])/(bin_size),50))
             dies = sum(fr[-cut_value:-1]) < 0.05
             if dies:
                 ratio[key] = 0.
@@ -223,7 +223,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         if 'v' in rec and ('gsyn_exc' in rec or 'gsyn_inh' in rec):
             lfp = compute_LFP(data)
             lfp = lfp - np.mean(lfp)
-            fe = 1/params['dt']*1000
+            fe = 1/params['dt']*1000                                            
             #spectrum,freq,t = mlab.specgram(lfp, NFFT=len(lfp),Fs = fe )
             psd[key],freqs_psd[key] = mlab.psd(lfp, Fs = fe, NFFT=int(len(lfp)/4))
             x = [freqs_psd[key][i] for i in range(len(freqs_psd[key])) if freqs_psd[key][i]<30.]
@@ -236,10 +236,19 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
 
             fig = plot.figure(2)
             plot.subplot(2,1,1)
-            plot.plot(t,lfp)
+            plot.plot(t,lfp,'b')
+	    plot.hold(True)
+            if 'audio' in params['Populations'].keys():
+		neo = pickle.load( open(folder+'/'+'audio'+addon+'.pkl', "rb") )
+        	data_audio = neo.segments[0]
+		bin_size = 10
+		fr = rate(params, data_audio.spiketrains, bin_size=bin_size)
+		fr = fr*(np.max(lfp)/2/max(max(fr),0.1))
+		plot.subplot(2,1,1)
+		plot.plot(np.linspace(0,params['run_time']/1000,len(fr)),fr,'k')
             plot.subplot(2,1,2)
             plot.plot(x,psd[key][0:len(x)])
-            #plot.legend('Fourier','psd')
+	    
             fig.savefig(folder+'/LFP_'+key+addon+'.png')
             fig.clear()
 

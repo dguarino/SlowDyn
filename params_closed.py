@@ -1,16 +1,20 @@
-from pyNN.nest import *
-from pyNN.utility import Timer
-
-params = {
+{
 
     'DistanceDep': True,
-    'run_time': 2000, # ms
+    'run_time': 20000, # ms
     'dt': 0.1, # ms
+    'nb_runs':1,
+    'push_interval':1000, #ms
+    'nb_push':50, #number of spikes
+    'spike_times':[],
+    'Injections' : {
+    },
+
 
     'Populations' : {
         'ext' : {
             'n' : 1,
-            'type': SpikeSourcePoisson,
+            'type': sim.SpikeSourcePoisson,
             'cellparams' : {
                 'start':0.0,
                 'rate':50.,
@@ -18,13 +22,13 @@ params = {
             }
         },
         'audio' : {
-            'n' : 1,
-            'type': SpikeSourceArray,
+            'n' : 10,
+            'type': sim.SpikeSourceArray,
             'cellparams' : {}
         },
        'py' : {
-            'n': 800, # units
-            'type': EIF_cond_alpha_isfa_ista,
+            'n': 1600, # units
+            'type': sim.EIF_cond_alpha_isfa_ista,
             'cellparams': {
                 'tau_m'      : 20.0,             # ms
                 'tau_syn_E'  : 5.0,
@@ -36,13 +40,13 @@ params = {
                 'delta_T'    : 2.5,
                 'tau_w'      : 600.0,
                 'cm'         : 0.200,
-                'a'          : 0.001e3,
-                'b'          : .02
+                'a'          : 0.001,#0.8e-3 Naud et al. 2008
+                'b'          : 0.1 #0.03
             }
         },
         'inh' : {
-            'n': 200,
-            'type': EIF_cond_alpha_isfa_ista,
+            'n': {'ref':'py','ratio':0.25},
+            'type': sim.EIF_cond_alpha_isfa_ista,
             'cellparams': {
                 'tau_m'      : 20.0,             # ms
                 'tau_syn_E'  : 5.0,
@@ -54,62 +58,75 @@ params = {
                 'delta_T'    : 2.5,
                 'tau_w'      : 600.0,
                 'cm'         : 0.200,
-                'a'          : 0.001e3,
-                'b'          : 0.0
+                'a'          : 0.001,#uS
+                'b'          : 0.015 #nA
             }
         }
+
     },
 
     'Projections' : {
         'ext_py' : {
             'source' : 'ext',
             'target' : 'py',
-            'connector' : FixedProbabilityConnector(.02),
-            'synapse_type' : StaticSynapse(weight=6e-3),
+            'connector' : sim.FixedProbabilityConnector(.02),
+            'synapse_type' : sim.StaticSynapse,
+            'weight' : 6e-3,
             'receptor_type' : 'excitatory'
         },
         'audio_py' : {
             'source' : 'ext',
             'target' : 'py',
-            'connector' : FixedProbabilityConnector(.02),
-            'synapse_type' : StaticSynapse(weight=6e-3),
+            'connector' : sim.FixedProbabilityConnector(1.),
+            'synapse_type' : sim.StaticSynapse,
+            'weight' : 6e-3,
             'receptor_type' : 'excitatory'
         },
         'py_py' : {
             'source' : 'py',
             'target' : 'py',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=6e-3),
+            'connector' : sim.FixedProbabilityConnector(.02, allow_self_connections=False, rng=sim.random.NumpyRNG(1235342134, parallel_safe=False)),
+            'synapse_type' : sim.StaticSynapse,
+            'weight' : 6e-3,
             'receptor_type' : 'excitatory'
         },
         'py_inh' : {
             'source' : 'py',
             'target' : 'inh',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=6e-3),
+            'connector' : sim.FixedProbabilityConnector(.02, allow_self_connections=False, rng=sim.random.NumpyRNG(1235342134, parallel_safe=False)),
+            'synapse_type' : sim.StaticSynapse,
+            'weight' : 6e-3,
             'receptor_type' : 'excitatory'
         },
         'inh_py' : {
             'source' : 'inh',
             'target' : 'py',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=67e-3),
+            'connector' : sim.FixedProbabilityConnector(.02, allow_self_connections=False, rng=sim.random.NumpyRNG(1235342134, parallel_safe=False)),
+            'synapse_type' : sim.StaticSynapse,
+            'weight' : 67e-3,
             'receptor_type' : 'inhibitory'
         },
         'inh_inh' : {
             'source' : 'inh',
             'target' : 'inh',
-            'connector' : FixedProbabilityConnector(.02, allow_self_connections=False, rng=NumpyRNG(1235342134, parallel_safe=False)),
-            'synapse_type' : StaticSynapse(weight=67e-3),
+            'connector' : sim.FixedProbabilityConnector(.02, allow_self_connections=False, rng=sim.random.NumpyRNG(1235342134, parallel_safe=False)),
+            'synapse_type' : sim.StaticSynapse,
+            'weight' : 67e-3,
             'receptor_type' : 'inhibitory'
         }
     },
 
     'Recorders' : {
         'py' : {
+            'spikes' : 'all',
+
             'gsyn_exc' : {
                 'start' : 0,
                 'end' : 10,
+            },
+	    'gsyn_inh' : {
+                'start' :200,
+                'end' : 210,
             },
             'v' : {
                 'start' : 0,
@@ -117,11 +134,24 @@ params = {
             }
         },
         'inh' : {
-            'spikes' :  {
+            'spikes' : 'all',
+            'gsyn_inh' :{
+                'start' : 0,
+                'end' : 10,
+            },
+            'gsyn_exc' : {
+                'start' :0,
+                'end' : 10,
+            },
+            'v' : {
                 'start' : 0,
                 'end' : 10,
             }
-        }
+        },
+	'audio' : {
+	    'spikes': 'all',
+	}
+
     },
 
     'Modifiers' :{
@@ -131,10 +161,13 @@ params = {
                 'end' : .1
             },
             'properties' : {
-                'a' : 0.02,
-                'b' : 0.0
+                'tau_w' : 150.,
+                'cm' : 0.15,
+                'tau_m' : 30.0, #
+                'a' : 13., #Alain 0.02, #uS
+                'b' : .02 #0.0
             }
-        }
+	}        
     }
 
 }
