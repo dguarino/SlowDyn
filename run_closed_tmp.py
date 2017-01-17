@@ -131,13 +131,11 @@ combinations = [{'default':''}] # init
 if search:
     # create parameter combinations
     testParams = sorted(search) # give an order to dict (by default unordered)
-    print "search",search
     # create an array of dictionaries:
     # each dict being the joining of one of the testKey and a value testVal
     # each testVal is produced by internal product of all array in testParams
     combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search[testKey] for testKey in testParams))]
-    print "combinations", combinations
-    0/0
+
 
 for run in range(params['nb_runs']):
     info = {}
