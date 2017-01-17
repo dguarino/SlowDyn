@@ -131,15 +131,16 @@ combinations = [{'default':''}] # init
 if search:
     # create parameter combinations
     testParams = sorted(search) # give an order to dict (by default unordered)
-
+    print "search",search
     # create an array of dictionaries:
     # each dict being the joining of one of the testKey and a value testVal
     # each testVal is produced by internal product of all array in testParams
     combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search[testKey] for testKey in testParams))]
-    #print len(combinations),combinations # to be commented
+    print "combinations", combinations
+    0/0
 
 for run in range(params['nb_runs']):
-    info = []
+    info = {}
     # run combinations
     for i,comb in enumerate(combinations):
         print "param combination",i, "trial",run
@@ -153,7 +154,7 @@ for run in range(params['nb_runs']):
         # save parameters in the data_folder
         if not os.path.exists(opts.data_folder+str(run)):
             os.makedirs(opts.data_folder+str(run))
-        shutil.copy('./'+opts.param_file, opts.data_folder+ str(run)+'/'+opts.param_file+'_'+str(comb)+'.py')
+        shutil.copy('./'+opts.param_file, opts.data_folder + str(run)+'/'+opts.param_file+'_'+str(comb)+'.py')
 
         if not opts.analysis:
             already_computed = 0
@@ -200,15 +201,16 @@ for run in range(params['nb_runs']):
                                 mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search[testParams[0]]) ] )
                                 if pop in freq:
                                     mywriter.writerow(freq[pop])
+			info[pop] = []
 
                         if pop in ratio and pop in fqcy:
                             print "appending to map",ratio,fqcy
-                            info.append([ratio[pop],fqcy[pop],fqcy_ratio[pop]])
+                            info[pop].append([ratio[pop],fqcy[pop],fqcy_ratio[pop]])
                             if (i+1)%len(search[testParams[1]]) == 0:
                                 with open(opts.data_folder+str(run)+'/map-'+pop+'.csv', 'a') as csvfile:
                                     mywriter = csv.writer(csvfile)
-                                    mywriter.writerow(info)
-                                    info = []
+                                    mywriter.writerow(info[pop])
+                                    info[pop] = []
                         if pop in psd:
                             with open(opts.data_folder+str(run)+'/psdmap-'+pop+'.csv', 'a') as csvfile:
                                 mywriter = csv.writer(csvfile)
@@ -216,7 +218,7 @@ for run in range(params['nb_runs']):
 
             else:
                 h.analyse(params, opts.data_folder+str(run), str(comb), opts.remove)
-                info = []
+                
 
 
 
