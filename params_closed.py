@@ -1,7 +1,7 @@
 {
 
     'DistanceDep': True,
-    'run_time': 20000, # ms
+    'run_time': 10000, # ms
     'dt': 0.1, # ms
     'nb_runs':1,
     'push_interval':1000, #ms
@@ -75,11 +75,11 @@
             'receptor_type' : 'excitatory'
         },
         'audio_py' : {
-            'source' : 'ext',
+            'source' : 'audio',
             'target' : 'py',
             'connector' : sim.FixedProbabilityConnector(1.),
             'synapse_type' : sim.StaticSynapse,
-            'weight' : 6e-3,
+            'weight' : 60e-3,
             'receptor_type' : 'excitatory'
         },
         'py_py' : {
