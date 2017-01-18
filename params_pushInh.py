@@ -3,7 +3,7 @@
     'DistanceDep': True,
     'run_time': 10000, # ms
     'dt': 0.1, # ms
-    'nb_runs':7,
+    'nb_runs':1,
     'push_interval':1000, #ms
     'nb_push':50, #number of spikes
     'spike_times':[],
@@ -74,9 +74,9 @@
             'weight' : 6e-3,
             'receptor_type' : 'excitatory'
         },
-        'audio_py' : {
+        'audio_inh' : {
             'source' : 'audio',
-            'target' : 'py',
+            'target' : 'inh',
             'connector' : sim.FixedProbabilityConnector(1.),
             'synapse_type' : sim.StaticSynapse,
             'weight' : 60e-3,

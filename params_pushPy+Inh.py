@@ -82,6 +82,15 @@
             'weight' : 60e-3,
             'receptor_type' : 'excitatory'
         },
+ 	'audio_inh' : {
+            'source' : 'audio',
+            'target' : 'inh',
+            'connector' : sim.FixedProbabilityConnector(1.),
+            'synapse_type' : sim.StaticSynapse,
+            'weight' : 60e-3,
+            'receptor_type' : 'excitatory'
+        },
+
         'py_py' : {
             'source' : 'py',
             'target' : 'py',
