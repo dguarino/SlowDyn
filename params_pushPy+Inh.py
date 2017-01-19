@@ -22,7 +22,7 @@
             }
         },
         'audio' : {
-            'n' : 10,
+            'n' : 100,
             'type': sim.SpikeSourceArray,
             'cellparams' : {}
         },
@@ -77,15 +77,15 @@
         'audio_py' : {
             'source' : 'audio',
             'target' : 'py',
-            'connector' : sim.FixedProbabilityConnector(1.),
+            'connector' : sim.FixedProbabilityConnector(.02),
             'synapse_type' : sim.StaticSynapse,
-            'weight' : 60e-3,
+            'weight' : 6e-3,
             'receptor_type' : 'excitatory'
         },
  	'audio_inh' : {
             'source' : 'audio',
             'target' : 'inh',
-            'connector' : sim.FixedProbabilityConnector(1.),
+            'connector' : sim.FixedProbabilityConnector(.02),
             'synapse_type' : sim.StaticSynapse,
             'weight' : 60e-3,
             'receptor_type' : 'excitatory'
