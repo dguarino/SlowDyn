@@ -32,7 +32,6 @@ def inject_spikes(t):
         lfp = compute_lfp(data,params['push_interval'],t,params['dt'])
         spike_times = open_loop(t,lfp)
 	params['spike_times'] = params['spike_times'] + spike_times
-	print params['spike_times']
         Populations['audio'].set(spike_times=spike_times)
     return t + params['push_interval']
 
@@ -175,15 +174,14 @@ for run in range(params['nb_runs']):
                 sim.end()
         else :
             if search:
-                already_computed = 0
+                already_analysed = 0
                 for pop in params['Populations'].keys():
                     if os.path.exists(opts.data_folder + str(run) +'/'+pop+str(comb)+'.png'):
-                        already_computed = already_computed + 1
-                if already_computed > len(params['Populations']) - 1:
+                        already_analysed = already_analysed + 1
+                if already_analysed >= len(params['Populations']) :
                     print "already analysed"
                 else:
                     ratio,fqcy,psd,freq, fqcy_ratio = h.analyse(params, opts.data_folder + str(run), str(comb), opts.remove)
-                    print "ratio",ratio,"fqcy",fqcy,"psd",psd,"freq",freq
                     
                     gen = (pop for pop in params['Populations'].keys() if pop != 'ext')
                     for pop in gen:
@@ -199,10 +197,9 @@ for run in range(params['nb_runs']):
                                 mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search[testParams[0]]) ] )
                                 if pop in freq:
                                     mywriter.writerow(freq[pop])
-			info[pop] = []
+			    info[pop] = []
 
                         if pop in ratio and pop in fqcy:
-                            print "appending to map",ratio,fqcy
                             info[pop].append([ratio[pop],fqcy[pop],fqcy_ratio[pop]])
                             if (i+1)%len(search[testParams[1]]) == 0:
                                 with open(opts.data_folder+str(run)+'/map-'+pop+'.csv', 'a') as csvfile:

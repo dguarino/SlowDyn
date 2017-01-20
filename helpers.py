@@ -142,7 +142,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         folder = folder+'/'+date
 
     # iteration over populations and selctive plotting based on available recorders
-    gen = ([key,rec] for key,rec in populations.iteritems() if key != 'ext' and key != 'audio')
+    gen = ([key,rec] for key,rec in populations.iteritems() if key != 'ext')
     for key,rec in gen:
         #if os.path.exists(os.getcwd()+"/"+folder+'/'+key+addon+".png"):
         #    print "skipping", key+addon, "(already existing)"
@@ -178,7 +178,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fig = plot.figure(56)
 
             clr = 'black'
-
             #threshold = 0.25#np.max(fr)/2
             #crossings = np.where(fr > threshold)[0]
             #ups = []
@@ -191,7 +190,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             #plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
             #ratio = len(uptimes) / (len(fr)-len(uptimes))
             cut_value = int(max(len(data.spiketrains[0])/(bin_size),50))
-            dies = sum(fr[-cut_value:-1]) < 0.05
+            dies = sum(numpy.abs(fr[-cut_value:-1])) < 1/10*min(numpy.abs(fr))
             if dies:
                 ratio[key] = 0.
             else:
@@ -222,11 +221,9 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
         # LFP
         if 'v' in rec and ('gsyn_exc' in rec or 'gsyn_inh' in rec):
             lfp = compute_LFP(data)
-            lfp = lfp - np.mean(lfp)
-            fe = 1/params['dt']*1000                                            
-            #spectrum,freq,t = mlab.specgram(lfp, NFFT=len(lfp),Fs = fe )
+            fe = 1/params['dt']*1000
             psd[key],freqs_psd[key] = mlab.psd(lfp, Fs = fe, NFFT=int(len(lfp)/4))
-            x = [freqs_psd[key][i] for i in range(len(freqs_psd[key])) if freqs_psd[key][i]<30.]
+            x = [freqs_psd[key][i] for i in range(len(freqs_psd[key])) if freqs_psd[key][i]<10.]
             argm = np.argmax(abs(psd[key]))
             fqcy[key] = freqs_psd[key][argm]
 
@@ -235,6 +232,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fqcy_ratio[key] = compute_fqcyratio(psd[key],freqs_psd[key])
 
             fig = plot.figure(2)
+
             plot.subplot(2,1,1)
             plot.plot(t,lfp,'b')
 	    plot.hold(True)
@@ -246,9 +244,9 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
 		fr = fr*(np.max(lfp)/2/max(max(fr),0.1))
 		plot.subplot(2,1,1)
 		plot.plot(np.linspace(0,params['run_time']/1000,len(fr)),fr,'k')
+
             plot.subplot(2,1,2)
-            plot.plot(x,psd[key][0:len(x)])
-	    
+            plot.plot(x,psd[key][0:len(x)])	    
             fig.savefig(folder+'/LFP_'+key+addon+'.png')
             fig.clear()
 
@@ -290,8 +288,8 @@ def compute_LFP(data):
       avg_i_by_t = numpy.sum(i,axis=1)/i.shape[0] #
       sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
       lfp = (1/(4*numpy.pi*sigma)) * avg_i_by_t
+      lfp = lfp - numpy.mean(lfp)
       return lfp
-
 
 
 def plot_spiketrains(segment):
