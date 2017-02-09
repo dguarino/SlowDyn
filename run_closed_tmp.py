@@ -10,6 +10,8 @@ from pyNN.utility import Timer
 import numpy as np
 import matplotlib.pyplot as plot
 from pyNN.utility import Timer
+from joblib import Parallel,delayed
+from functools import partial
 import sys, getopt
 import itertools as it
 
@@ -26,7 +28,7 @@ def getValue(dic, keys):
 
 #STIMULATION FUNCTIONS ---------------------------------------------------------
 
-def inject_spikes(t):
+def inject_spikes_pop(t,Populations):
     if t>0.0:
         data = Populations['py'].get_data().segments[0]
         lfp = compute_lfp(data,params['push_interval'],t,params['dt'])
@@ -34,6 +36,28 @@ def inject_spikes(t):
 	params['spike_times'] = params['spike_times'] + spike_times
         Populations['audio'].set(spike_times=spike_times)
     return t + params['push_interval']
+
+
+
+
+class inject_spikes(object):
+
+    def __init__(self,Populations,push_interval,dt):
+        self.Populations = Populations
+        #self.interval = push_interval
+        #self.dt = dt
+
+    def __call__(self,t):
+
+        if t>0.0:
+            data = self.Populations['py'].get_data().segments[0]
+            lfp = compute_lfp(data,params['push_interval'],t,params['dt'])
+            spike_times = open_loop(t,lfp)
+	    params['spike_times'] = params['spike_times'] + spike_times
+            Populations['audio'].set(spike_times=spike_times)
+        return t + params['push_interval']
+
+
 
 
 def closed_loop(t, eeg):
@@ -136,7 +160,9 @@ if search:
     combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search[testKey] for testKey in testParams))]
 
 
-for run in range(params['nb_runs']):
+
+def run_simulation(run):
+
     info = {}
     # run combinations
     for i,comb in enumerate(combinations):
@@ -167,6 +193,7 @@ for run in range(params['nb_runs']):
                 print "Running Network"
                 timer = Timer()
                 timer.reset()
+		inject_spikes = partial(inject_spikes_pop,Populations = Populations)
                 sim.run(params['run_time'], [inject_spikes])
                 simCPUtime = timer.elapsedTime()
                 print "Simulation Time: %s" % str(simCPUtime)
@@ -178,9 +205,10 @@ for run in range(params['nb_runs']):
                 for pop in params['Populations'].keys():
                     if os.path.exists(opts.data_folder + str(run) +'/'+pop+str(comb)+'.png'):
                         already_analysed = already_analysed + 1
-                if already_analysed >= len(params['Populations']) :
+                if already_analysed >= len(params['Populations'])-1 :
                     print "already analysed"
                 else:
+		    print already_analysed
                     ratio,fqcy,psd,freq, fqcy_ratio = h.analyse(params, opts.data_folder + str(run), str(comb), opts.remove)
                     
                     gen = (pop for pop in params['Populations'].keys() if pop != 'ext')
@@ -223,8 +251,10 @@ for run in range(params['nb_runs']):
 
 
 
+for run in range(params['nb_runs']):
+    run_simulation(run)
 
-
+#Parallel(n_jobs=6)(delayed(run_simulation)(run) for run in range(params['nb_runs']))
 #h.run_simulation(external.params)
 
 
