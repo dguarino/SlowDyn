@@ -94,6 +94,7 @@ def perform_injections(params, populations):
 
 def record_data(Params, Populations):
     for recPop, recVal in Params['Recorders'].iteritems():
+	print recPop,recVal
         for elKey,elVal in recVal.iteritems():
             if elVal == 'all':
                 Populations[recPop].record( elKey )
@@ -217,7 +218,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             panels.append( Panel(current,ylabel = "Current injection (mA)",xlabel="Time (ms)", xticks=True, legend=None) )
 
         Figure( *panels ).save(folder+'/'+key+addon+".png")
-
+	
         # LFP
         if 'v' in rec and ('gsyn_exc' in rec or 'gsyn_inh' in rec):
             lfp = compute_LFP(data)
@@ -226,7 +227,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             x = [freqs_psd[key][i] for i in range(len(freqs_psd[key])) if freqs_psd[key][i]<10.]
             argm = np.argmax(abs(psd[key]))
             fqcy[key] = freqs_psd[key][argm]
-
+	
             N = len(lfp)
             t = np.arange(0.,N)/fe
             fqcy_ratio[key] = compute_fqcyratio(psd[key],freqs_psd[key])
