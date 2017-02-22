@@ -1,7 +1,7 @@
 {
 
     'DistanceDep': True,
-    'run_time': 100000, # ms
+    'run_time': 10000, # ms
     'dt': 0.1, # ms
     'nb_runs':7,
     'push_interval':1000, #ms
