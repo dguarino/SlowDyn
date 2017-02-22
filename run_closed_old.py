@@ -10,8 +10,6 @@ from pyNN.utility import Timer
 import numpy as np
 import matplotlib.pyplot as plot
 from pyNN.utility import Timer
-from joblib import Parallel,delayed
-from functools import partial
 import sys, getopt
 import itertools as it
 
@@ -26,58 +24,80 @@ def getValue(dic, keys):
     return reduce(lambda d, k: d[k], keys, dic)
 
 
-#STIMULATION FUNCTIONS ---------------------------------------------------------
+class SetInput(object):
+    """
+    """
 
-def inject_spikes_pop(t,Populations):
-    if t>0.0:
-        data = Populations['py'].get_data().segments[0]
-        lfp = compute_lfp(data,params['push_interval'],t,params['dt'])
-        #spike_times = open_loop(t,lfp)
-	spike_times = closed_loop(t,lfp)
-	params['spike_times'] = params['spike_times'] + spike_times
-        Populations['audio'].set(spike_times=spike_times)
-    return t + 5. #params['push_interval']
+    def __init__(self, populations, interval=20.0, dt=0.1):
+	print "initiated"
+        self.interval = interval
+        self.populations = populations
+        self.dt = dt
 
+    def closed_loop(self, t, eeg):
+        # use the eeg interval (N ms) to compute the input
 
+        ## Proposta di struttura 
+        threshold = somevalue
+        #is the threshold crossed ?
+        signal = eeg - threshold
+        threshold_crossing =  signal[1:]* signal[0:-1]  < 0
+        #stimulate if threshold crossing is positive
+        for index in range(1,len(threshold_crossing)-1):
+            if threshold_crossing[index] and (signal[index] - signal[index-1])>0:
+                stim = true
+                spike_times = [index+1]#, t+3, t+4] # result of the rythm_func
+            else: 
+                spike_times = 0
+        return spike_times
+    
+    def open_loop(self, t, eeg):
+        print "inside open_loop"
+        if t % 1000 == 0:
+            spike_times = [t+1,t+2,t+3]
+        else:
+            spike_times = 0
 
-def closed_loop(t, eeg):
-    # use the eeg interval (N ms) to compute the input
-    ## Proposta di struttura 
-    threshold = 0. #somevalue
-    #is the threshold crossed ? 
-    print eeg
-    signal = eeg #- threshold
-    threshold_crossing =  signal[1:]* signal[0:-1]  < 0
-    #stimulate if threshold crossing is positive
-    stim = False
-    spike_times = []
-    for index in range(1,len(threshold_crossing)-1):
-	if threshold_crossing[index] and (signal[index] - signal[index-1])>0:
-            stim = True
-    if stim == True:
-	spike_times = [t+1+i for i in range(params['nb_push'])]
-    return spike_times
+        return spike_times
 
-
-def open_loop(t, eeg):
-    print "inside open_loop"
-    spike_times = [t+1+i for i in range(params['nb_push'])]
-
-
-    return spike_times	
-
-
-def compute_lfp(data,interval,t,dt):
-    v = data.filter(name="v")[0][(t-interval)/dt:t/dt]
-    g_exc = data.filter(name="gsyn_exc")[0][(t-interval)/dt:t/dt]
-    g_inh = data.filter(name="gsyn_inh")[0][(t-interval)/dt:t/dt]
-    i = (g_exc+g_inh)*v
-    avg_i_by_t = np.sum(i,axis=0)/i.shape[0] # / time steps
-    sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
-    lfp = (1/(4*np.pi*sigma)) * avg_i_by_t 
-    return lfp
- 
-
+    def __call__(self, t):
+        print "called"
+        try:
+            lfp = 0.0
+            if t>0.0: # there needs to be data, so after time 0 :)
+                data = self.populations['py'].get_data().segments[0]
+                # get only the last interval recordings
+                # during an interval (10ms) (101, 10)
+                # we are recording for 10ms*0.1ms dt = 101, from 10 cells
+                v = data.filter(name="v")[0][(t-self.interval)*self.interval:t*self.interval]
+                g = data.filter(name="gsyn_exc")[0][(t-self.interval)*self.interval:t*self.interval]
+                #print t, 'v', v.shape
+                #print t, 'g', g.shape
+                # We produce the current for each cell for this time interval, with the Ohm law:
+                # I = g(V-E), where E is the equilibrium for exc which is usually 0.0 (we can change it)
+                # (and we also have to consider inhibitory condictances)
+                i = g*(v)
+                print "computing lfp"
+                #print 'i',i.shape
+                #print i
+                # http://www.scholarpedia.org/article/Local_field_potential
+                # the LFP is the result of all cells' currents
+                avg_i_by_t = numpy.sum(i,axis=0)/i.shape[0] # / time steps
+                #print avg_i_by_t.shape
+                #print avg_i_by_t
+                sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
+                lfp = (1/(4*numpy.pi*sigma)) * avg_i_by_t 
+                # a very large LFP would give us a signal comparable to eeg
+                # - https://www.quora.com/Neuroscience-What-is-difference-between-local-field-potential-and-EEG
+                # - Musall et al 2012
+                # - Bartosz (personal communication)
+                print lfp
+            # LFP into rythm_func
+            spike_times = self.open_loop(t,lfp)
+            self.populations['audio'].set(spike_times=spike_times)
+        except StopIteration:
+            pass
+        return t + self.interval
 
             
 def report_time(t):
@@ -137,16 +157,15 @@ combinations = [{'default':''}] # init
 if search:
     # create parameter combinations
     testParams = sorted(search) # give an order to dict (by default unordered)
+
     # create an array of dictionaries:
     # each dict being the joining of one of the testKey and a value testVal
     # each testVal is produced by internal product of all array in testParams
     combinations = [dict(zip(testParams, testVal)) for testVal in it.product(*(search[testKey] for testKey in testParams))]
+    #print len(combinations),combinations # to be commented
 
-
-
-def run_simulation(run):
-
-    info = {}
+for run in range(params['nb_runs']):
+    info = []
     # run combinations
     for i,comb in enumerate(combinations):
         print "param combination",i, "trial",run
@@ -160,7 +179,7 @@ def run_simulation(run):
         # save parameters in the data_folder
         if not os.path.exists(opts.data_folder+str(run)):
             os.makedirs(opts.data_folder+str(run))
-        shutil.copy('./'+opts.param_file, opts.data_folder + str(run)+'/'+opts.param_file+'_'+str(comb)+'.py')
+        shutil.copy('./'+opts.param_file, opts.data_folder+ str(run)+'/'+opts.param_file+'_'+str(comb)+'.py')
 
         if not opts.analysis:
             already_computed = 0
@@ -176,23 +195,23 @@ def run_simulation(run):
                 print "Running Network"
                 timer = Timer()
                 timer.reset()
-		inject_spikes = partial(inject_spikes_pop,Populations = Populations)
-                sim.run(params['run_time'], [inject_spikes])
+                interval = 10
+                sim.run(params['run_time'], callbacks = SetInput(Populations, interval, params['dt']))
                 simCPUtime = timer.elapsedTime()
                 print "Simulation Time: %s" % str(simCPUtime)
                 h.save_data(Populations, opts.data_folder + str(run), str(comb))
                 sim.end()
         else :
             if search:
-                already_analysed = 0
+                already_computed = 0
                 for pop in params['Populations'].keys():
                     if os.path.exists(opts.data_folder + str(run) +'/'+pop+str(comb)+'.png'):
-                        already_analysed = already_analysed + 1
-                if already_analysed >= len(params['Populations'])-1 :
+                        already_computed = already_computed + 1
+                if already_computed > len(params['Populations']) - 1:
                     print "already analysed"
                 else:
-		    print already_analysed
                     ratio,fqcy,psd,freq, fqcy_ratio = h.analyse(params, opts.data_folder + str(run), str(comb), opts.remove)
+                    print "ratio",ratio,"fqcy",fqcy,"psd",psd,"freq",freq
                     
                     gen = (pop for pop in params['Populations'].keys() if pop != 'ext')
                     for pop in gen:
@@ -208,23 +227,23 @@ def run_simulation(run):
                                 mywriter.writerow( ['#'+str(testParams[0])+ ':' +str(search[testParams[0]]) ] )
                                 if pop in freq:
                                     mywriter.writerow(freq[pop])
-			    info[pop] = []
 
                         if pop in ratio and pop in fqcy:
-                            info[pop].append([ratio[pop],fqcy[pop],fqcy_ratio[pop]])
+                            print "appending to map",ratio,fqcy
+                            info.append([ratio[pop],fqcy[pop],fqcy_ratio[pop]])
                             if (i+1)%len(search[testParams[1]]) == 0:
                                 with open(opts.data_folder+str(run)+'/map-'+pop+'.csv', 'a') as csvfile:
                                     mywriter = csv.writer(csvfile)
-                                    mywriter.writerow(info[pop])
-                                    info[pop] = []
+                                    mywriter.writerow(info)
+                                    info = []
                         if pop in psd:
                             with open(opts.data_folder+str(run)+'/psdmap-'+pop+'.csv', 'a') as csvfile:
                                 mywriter = csv.writer(csvfile)
                                 mywriter.writerow(psd[pop])
 
             else:
-                h.analyse(params, opts.data_folder+str(run), str(comb), opts.remove)
-                
+                h.analyse(params, opts.data_folder+str(run), str(comb), removeDataFile)
+                info = []
 
 
 
@@ -234,10 +253,8 @@ def run_simulation(run):
 
 
 
-for run in range(params['nb_runs']):
-    run_simulation(run)
 
-#Parallel(n_jobs=6)(delayed(run_simulation)(run) for run in range(params['nb_runs']))
+
 #h.run_simulation(external.params)
 
 
