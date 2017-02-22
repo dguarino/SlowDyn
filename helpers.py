@@ -31,17 +31,18 @@ import numpy as np
 import random as rd
 import os
 import scipy.io
-from pyNN.utility import Timer
 import pickle
-import numpy
-from pyNN.utility.plotting import Figure, Panel
 import matplotlib.pyplot as plot
+import quantities as pq
+from pyNN.utility import Timer
+from pyNN.utility.plotting import Figure, Panel
 from datetime import datetime
 from matplotlib import mlab
 from neo.core import AnalogSignalArray
-import quantities as pq
+
 
 def build_network(sim, Params):
+    #creates populations and connections from parameter file
     sim.setup( timestep=Params['dt'])
 
     Populations = {}
@@ -82,6 +83,8 @@ def build_network(sim, Params):
 
     return Populations
 
+
+
 def perform_injections(params, populations):
     for modKey,modVal in params['Injections'].iteritems():
         if isinstance(modVal['start'], (list)):
@@ -93,6 +96,7 @@ def perform_injections(params, populations):
 
 
 def record_data(Params, Populations):
+    #define what will be recorded
     for recPop, recVal in Params['Recorders'].iteritems():
 	print recPop,recVal
         for elKey,elVal in recVal.iteritems():
@@ -292,38 +296,7 @@ def compute_LFP(data):
       lfp = lfp - numpy.mean(lfp)
       return lfp
 
-
-def plot_spiketrains(segment):
-    for spiketrain in segment.spiketrains:
-        y = np.ones_like(spiketrain) * spiketrain.annotations['source_id']
-        plot.plot(spiketrain, y,linestyle='dashed', marker='o',markersize =1)
-        plot.ylabel(segment.name)
-        plot.setp(plot.gca().get_xticklabels(), visible=False)
-
-
-def plot_signal(signal, index, colour='b'):
-    label = "Neuron %d" % signal.annotations['source_ids'][index]
-    plt.plot(signal.times, signal[:, index], colour, label=label)
-    plt.ylabel("%s (%s)" % (signal.name, signal.units._dimensionality.string))
-    plt.setp(plt.gca().get_xticklabels(), visible=False)
-    plt.legend()
-
-
-def load_spikelist( filename, t_start=.0, t_stop=1. ):
-    spiketrains = []
-    # Data is in Neo format inside a pickle file
-    # open the pickle and get the neo block
-    neo_block = pickle.load( open(filename, "rb") )
-    # get spiketrains
-    neo_spikes = neo_block.segments[0].spiketrains
-    for i,st in enumerate(neo_spikes):
-        for t in st.magnitude:
-            spiketrains.append( (i, t) )
-
-    spklist = SpikeList(spiketrains, range(len(neo_spikes)), t_start=t_start, t_stop=t_stop)
-    return spklist
-
-
+	
 
 
 def rate( params, spiketrains, bin_size=10 ):
