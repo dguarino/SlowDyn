@@ -96,7 +96,7 @@ def perform_injections(params, populations):
 
 
 def record_data(Params, Populations):
-    #define what will be recorded
+    #defines what will be recorded
     for recPop, recVal in Params['Recorders'].iteritems():
 	print recPop,recVal
         for elKey,elVal in recVal.iteritems():
@@ -140,18 +140,15 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
     fqcy_ratio = {}
 
 
-    # default results name folder
+    # if the result folder is not specified within results, its name will be the date
     if folder == 'results':
         dt = datetime.now()
         date = dt.strftime("%d-%m-%I-%M")
         folder = folder+'/'+date
 
-    # iteration over populations and selctive plotting based on available recorders
+    # iteration over populations and selective plotting based on available recorders
     gen = ([key,rec] for key,rec in populations.iteritems() if key != 'ext')
     for key,rec in gen:
-        #if os.path.exists(os.getcwd()+"/"+folder+'/'+key+addon+".png"):
-        #    print "skipping", key+addon, "(already existing)"
-        #    continue
         neo = pickle.load( open(folder+'/'+key+addon+'.pkl', "rb") )
         data = neo.segments[0]
 
@@ -182,7 +179,8 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             # ratio (and additions to figure)
             fig = plot.figure(56)
 
-            clr = 'black'
+	    #computes a ratio that indicates if there is more upstate then downstate or the contrary
+            #clr = 'black'
             #threshold = 0.25#np.max(fr)/2
             #crossings = np.where(fr > threshold)[0]
             #ups = []
@@ -195,7 +193,7 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             #plot.scatter(uptimes, uppoints) # plot chosen up at the threshold
             #ratio = len(uptimes) / (len(fr)-len(uptimes))
             cut_value = int(max(len(data.spiketrains[0])/(bin_size),50))
-            dies = sum(numpy.abs(fr[-cut_value:-1])) < 1/10*min(numpy.abs(fr))
+            dies = sum(np.abs(fr[-cut_value:-1])) < 1/10*min(np.abs(fr))
             if dies:
                 ratio[key] = 0.
             else:
@@ -225,13 +223,13 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
 	
         # LFP
         if 'v' in rec and ('gsyn_exc' in rec or 'gsyn_inh' in rec):
+	    #compute LFP, spectrum, and dominant frequency
             lfp = compute_LFP(data)
             fe = 1/params['dt']*1000
             psd[key],freqs_psd[key] = mlab.psd(lfp, Fs = fe, NFFT=int(len(lfp)/4))
             x = [freqs_psd[key][i] for i in range(len(freqs_psd[key])) if freqs_psd[key][i]<10.]
             argm = np.argmax(abs(psd[key]))
             fqcy[key] = freqs_psd[key][argm]
-	
             N = len(lfp)
             t = np.arange(0.,N)/fe
             fqcy_ratio[key] = compute_fqcyratio(psd[key],freqs_psd[key])
@@ -255,14 +253,6 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
             fig.savefig(folder+'/LFP_'+key+addon+'.png')
             fig.clear()
 
-        ## metric supposed to characterize bimodality
-        #bins = bins[:-1]
-        #prop_left = sum([n[i] for i,data in enumerate(bins) if bins[i]<(np.mean(vm)-np.std(vm)/2)])/sum(n)
-        #prop_right = sum([n[i] for i,data in enumerate(bins) if bins[i]>(np.mean(vm)+np.std(vm)/2)])/sum(n)
-        #score[key] = float("{0:.2f}".format(prop_left*prop_right))
-        #print "prop_left",prop_left, "prop_right",prop_right
-        #print "score",prop_left*prop_right
-
         # for systems with low memory :)
         if removeDataFile:
             os.remove(folder+'/'+key+addon+'.pkl')
@@ -271,6 +261,9 @@ def analyse(params, folder='results', addon='', removeDataFile=False):
 
 
 def compute_fqcyratio(psd,freqs_psd):
+      #computes the ratio between the largest frequency and all the others, 
+      # to see how dominant it is
+
       max = np.max(abs(psd))
       argm = np.argmax(abs(psd))
       others = sum(psd[i] for i in range(len(freqs_psd)) if (freqs_psd[i] != freqs_psd[argm] and psd[i]>max/2))
@@ -290,10 +283,10 @@ def compute_LFP(data):
       # (and we also have to consider inhibitory condictances)
       i = (g_exc + g_inh) * v #AMPA
       # the LFP is the result of cells' currents
-      avg_i_by_t = numpy.sum(i,axis=1)/i.shape[0] #
+      avg_i_by_t = np.sum(i,axis=1)/i.shape[0] #
       sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
-      lfp = (1/(4*numpy.pi*sigma)) * avg_i_by_t
-      lfp = lfp - numpy.mean(lfp)
+      lfp = (1/(4*np.pi*sigma)) * avg_i_by_t
+      lfp = lfp - np.mean(lfp)
       return lfp
 
 	

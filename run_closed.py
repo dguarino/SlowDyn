@@ -124,7 +124,7 @@ if opts.search_file:
         sstring = sfile.read()
         search = eval(sstring)
 
-#opts.analysis = True #uncomment for analysis if command line setting doesn't work
+opts.analysis = True #uncomment for analysis if command line setting doesn't work
 
 
 combinations = [{'default':''}] # init
